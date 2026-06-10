@@ -1,0 +1,95 @@
+<resources>
+    <string name="app_name">תכלית</string>
+
+    <!-- Main Activity -->
+    <string name="app_logo">לוגו אפליקציית תכלית</string>
+    <string name="welcome_subtitle">שרשרת החסד והתורה למען ישראל</string>
+    <string name="choose_your_role">בחר מה תרצה לעשות</string>
+
+    <!-- User Roles -->
+    <string name="learn_asker_title">אני רוצה ללמוד</string>
+    <string name="learn_asker_description">הירשם כדי לבקש חברותא</string>
+
+    <string name="learn_giver_title">אני רוצה ללמד</string>
+    <string name="learn_giver_description">הירשם כדי להתנדב ללמד</string>
+
+    <string name="office_volunteer_title">אני רוצה להתנדב</string>
+    <string name="office_volunteer_description">הירשם כדי להתנדב לעבודה משרדית</string>
+
+    <string name="food_volunteer_title">אני רוצה להתנדב</string>
+    <string name="food_volunteer_description">הירשם כדי להתנדב לאריזת חבילות מזון</string>
+
+    <string name="supervisor_title">רכז</string>
+    <string name="supervisor_description">כניסה לרכזים</string>
+
+    <!-- Common -->
+    <string name="name">שם</string>
+    <string name="email">אימייל</string>
+    <string name="phone">טלפון</string>
+    <string name="city">עיר</string>
+    <string name="password">סיסמה</string>
+    <string name="register">הירשם</string>
+    <string name="login">התחבר</string>
+    <string name="cancel">ביטול</string>
+    <string name="save">שמור</string>
+    <string name="edit">ערוך</string>
+    <string name="delete">מחק</string>
+
+    <!-- Learn Asker Registration -->
+    <string name="subjects_to_learn">מקצועות שאני רוצה ללמוד</string>
+    <string name="learning_goals">מטרות הלמידה</string>
+    <string name="preferred_schedule">לוח זמנים מועדף</string>
+    <string name="experience_level">רמת ניסיון</string>
+    <string name="additional_notes">הערות נוספות</string>
+    <string name="experience_beginner">מתחיל</string>
+    <string name="experience_intermediate">בינוני</string>
+    <string name="experience_advanced">מתקדם</string>
+
+    <!-- Learn Giver Registration -->
+    <string name="subjects_can_teach">מקצועות שאני יכול ללמד</string>
+    <string name="teaching_experience">ניסיון בהוראה</string>
+    <string name="available_schedule">לוח זמנים פנוי</string>
+    <string name="max_students">מספר תלמידים מקסימלי</string>
+    <string name="teaching_style">סגנון הוראה</string>
+
+    <!-- Dashboard -->
+    <string name="welcome_back">ברוך שובך</string>
+    <string name="my_profile">הפרופיל שלי</string>
+    <string name="my_teacher">המורה שלי</string>
+    <string name="my_students">התלמידים שלי</string>
+    <string name="no_teacher_assigned">עדיין לא שובץ מורה</string>
+    <string name="no_students_assigned">עדיין לא שובצו תלמידים</string>
+
+    <!-- Supervisor -->
+    <string name="all_users">כל המשתמשים</string>
+    <string name="unmatched_learners">לומדים שלא שובצו</string>
+    <string name="available_teachers">מורים זמינים</string>
+    <string name="suggested_matches">הצעות שיבוץ</string>
+    <string name="create_pairing">צור שיבוץ</string>
+    <string name="filter_by_city">סנן לפי עיר</string>
+    <string name="compatibility_score">התאמה: %1$d%%</string>
+
+    <!-- Messages -->
+    <string name="registration_successful">ההרשמה הושלמה בהצלחה!</string>
+    <string name="login_successful">ההתחברות הושלמה בהצלחה!</string>
+    <string name="invalid_credentials">פרטי התחברות שגויים</string>
+    <string name="pairing_successful">השיבוץ נוצר בהצלחה!</string>
+    <string name="pairing_failed">יצירת השיבוץ נכשלה</string>
+    <string name="error_occurred">אירעה שגיאה</string>
+    <string name="please_fill_all_fields">אנא מלא את כל השדות הנדרשים</string>
+
+    <!-- Supervisor Login -->
+    <string name="supervisor_password">סיסמת רכז</string>
+    <string name="invalid_supervisor_password">סיסמת רכז שגויה</string>
+
+    <!-- Section Headers -->
+    <string name="personal_information">מידע אישי</string>
+    <string name="learning_information">מידע לימודים</string>
+
+    <!-- Arrays -->
+    <string-array name="experience_levels">
+        <item>@string/experience_beginner</item>
+        <item>@string/experience_intermediate</item>
+        <item>@string/experience_advanced</item>
+    </string-array>
+</resources>

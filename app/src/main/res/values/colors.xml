@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Tachlit App Colors -->
+    <color name="primary_color">#FF2196F3</color>
+    <color name="primary_dark">#FF1976D2</color>
+    <color name="accent_color">#FFFF9800</color>
+    <color name="background_color">#FFF5F5F5</color>
+    <color name="surface_color">#FFFFFFFF</color>
+    <color name="text_primary">#FF212121</color>
+    <color name="text_secondary">#FF757575</color>
+    <color name="text_hint">#FFBDBDBD</color>
+    <color name="success_color">#FF4CAF50</color>
+    <color name="error_color">#FFF44336</color>
+    <color name="warning_color">#FFFF9800</color>
+
+    <!-- Main App Brand Colors -->
+    <color name="main_color">#FF449799</color>              <!-- RGB(68, 151, 153) -->
+    <color name="secondary_color">#FFB94B55</color>         <!-- RGB(185, 75, 85) -->
+
+    <!-- Unified Card Background -->
+    <color name="card_unified_background">#FFF8F6</color>   <!-- Light warm neutral -->
+
+    <!-- Nice Tab/Card Colors -->
+    <color name="card_learn_asker">#FFE3F2FD</color>        <!-- Light blue -->
+    <color name="card_learn_giver">#FFE8F5E8</color>        <!-- Light green -->
+    <color name="card_supervisor">#FFFCE4EC</color>         <!-- Light pink -->
+    <color name="text_on_light_blue">#FF0D47A1</color>      <!-- Dark blue -->
+    <color name="text_on_light_green">#FF1B5E20</color>     <!-- Dark green -->
+    <color name="text_on_light_pink">#FF880E4F</color>      <!-- Dark pink -->
+    <color name="text_secondary_blue">#FF1565C0</color>     <!-- Medium blue -->
+    <color name="text_secondary_green">#FF2E7D32</color>    <!-- Medium green -->
+    <color name="text_secondary_pink">#FFC2185B</color>     <!-- Medium pink -->
+</resources>

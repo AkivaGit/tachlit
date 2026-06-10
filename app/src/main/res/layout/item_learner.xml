@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="@color/surface_color"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvLearnerName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="שם הלומד"
+                android:textColor="@color/main_color"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvLearnerCity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="עיר"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:background="@android:color/transparent"
+                android:backgroundTint="@color/main_color"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvLearnerSubjects"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="מקצועות: גמרא, הלכה"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvLearnerSchedule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="זמנים: ראשון 19:00-21:00"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvLearnerLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="מתחיל"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:background="@drawable/rounded_background"
+            android:backgroundTint="@color/secondary_color"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
