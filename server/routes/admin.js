@@ -261,20 +261,48 @@ router.get('/stats', async (req, res) => {
   try {
     const { query } = require('../config/database');
 
-    // Get user statistics
-    const totalUsersResult = await query('SELECT COUNT(*) as count FROM users');
-    const activeUsersResult = await query('SELECT COUNT(*) as count FROM users WHERE is_active = true');
-    const adminUsersResult = await query('SELECT COUNT(*) as count FROM users WHERE role = \'admin\'');
-    const recentUsersResult = await query(
-      'SELECT COUNT(*) as count FROM users WHERE created_at >= NOW() - INTERVAL \'7 days\''
+    // Get Tachlit-specific statistics
+    const totalUsersResult = await query('SELECT COUNT(*) as count FROM users WHERE is_active = true');
+    const learnAskersResult = await query('SELECT COUNT(*) as count FROM users WHERE user_type = \'LEARN_ASKER\' AND is_active = true');
+    const learnGiversResult = await query('SELECT COUNT(*) as count FROM users WHERE user_type = \'LEARN_GIVER\' AND is_active = true');
+    const officeVolunteersResult = await query('SELECT COUNT(*) as count FROM users WHERE user_type = \'OFFICE_VOLUNTEER\' AND is_active = true');
+    const foodVolunteersResult = await query('SELECT COUNT(*) as count FROM users WHERE user_type = \'FOOD_VOLUNTEER\' AND is_active = true');
+    const supervisorsResult = await query('SELECT COUNT(*) as count FROM users WHERE user_type = \'SUPERVISOR\' AND is_active = true');
+
+    // Get unmatched learners (those without assigned teacher)
+    const unmatchedLearnersResult = await query(
+      'SELECT COUNT(*) as count FROM learn_askers WHERE assigned_teacher_id IS NULL OR is_matched = false'
+    );
+
+    // Get available teachers (those with capacity for more students)
+    const availableTeachersResult = await query(`
+      SELECT COUNT(*) as count FROM learn_givers lg
+      JOIN users u ON lg.user_id = u.id
+      WHERE u.is_active = true
+      AND (
+        SELECT COALESCE(ARRAY_LENGTH(string_to_array(NULLIF(lg.current_student_ids, ''), ','), 1), 0)
+      ) < lg.max_students
+    `);
+
+    // Get total pairings
+    const totalPairingsResult = await query('SELECT COUNT(*) as count FROM pairings WHERE status = \'active\'');
+
+    // Get recent registrations (last 7 days)
+    const recentRegistrationsResult = await query(
+      'SELECT COUNT(*) as count FROM users WHERE created_at >= NOW() - INTERVAL \'7 days\' AND is_active = true'
     );
 
     const stats = {
       totalUsers: parseInt(totalUsersResult.rows[0].count),
-      activeUsers: parseInt(activeUsersResult.rows[0].count),
-      adminUsers: parseInt(adminUsersResult.rows[0].count),
-      recentUsers: parseInt(recentUsersResult.rows[0].count),
-      inactiveUsers: parseInt(totalUsersResult.rows[0].count) - parseInt(activeUsersResult.rows[0].count)
+      learnAskers: parseInt(learnAskersResult.rows[0].count),
+      learnGivers: parseInt(learnGiversResult.rows[0].count),
+      officeVolunteers: parseInt(officeVolunteersResult.rows[0].count),
+      foodVolunteers: parseInt(foodVolunteersResult.rows[0].count),
+      supervisors: parseInt(supervisorsResult.rows[0].count),
+      unmatchedLearners: parseInt(unmatchedLearnersResult.rows[0].count),
+      availableTeachers: parseInt(availableTeachersResult.rows[0].count),
+      totalPairings: parseInt(totalPairingsResult.rows[0].count),
+      recentRegistrations: parseInt(recentRegistrationsResult.rows[0].count)
     };
 
     res.status(200).json({

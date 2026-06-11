@@ -5,18 +5,36 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
+import com.example.tachlit.data.TachlitDatabase
 import com.example.tachlit.databinding.ActivitySupervisorBinding
+import com.example.tachlit.repository.TachlitRepository
+import kotlinx.coroutines.launch
 
 class SupervisorActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySupervisorBinding
-    private val supervisorPassword = "123" // This should be configurable
+    private lateinit var repository: TachlitRepository
+    private val supervisorEmail = "supervisor@tachlit.com" // Default supervisor email
+    private val supervisorPassword = "admin123" // Default supervisor password
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_supervisor)
+
+        // Initialize repository
+        val database = TachlitDatabase.getDatabase(this)
+        repository = TachlitRepository(
+            database.userDao(),
+            database.learnAskerDao(),
+            database.learnGiverDao(),
+            database.officeVolunteerDao(),
+            database.foodVolunteerDao(),
+            database.pairingDao()
+        )
 
         setupUI()
         setupClickListeners()
@@ -66,14 +84,25 @@ class SupervisorActivity : AppCompatActivity() {
             return
         }
 
-        if (enteredPassword == supervisorPassword) {
-            // Login successful
-            hideKeyboard()
-            showManagementSection()
-            loadStatistics()
-        } else {
-            // Login failed
-            binding.etSupervisorPassword.error = getString(R.string.invalid_supervisor_password)
+        // Authenticate with server
+        lifecycleScope.launch {
+            try {
+                val result = repository.loginSupervisor(supervisorEmail, enteredPassword)
+                if (result.isSuccess) {
+                    // Login successful
+                    hideKeyboard()
+                    showManagementSection()
+                    loadStatistics()
+                    Toast.makeText(this@SupervisorActivity, "Login successful", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Login failed
+                    binding.etSupervisorPassword.error = "Invalid password: ${result.exceptionOrNull()?.message}"
+                    Toast.makeText(this@SupervisorActivity, "Login failed", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                binding.etSupervisorPassword.error = "Login error: ${e.message}"
+                Toast.makeText(this@SupervisorActivity, "Login error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -83,15 +112,38 @@ class SupervisorActivity : AppCompatActivity() {
     }
 
     private fun loadStatistics() {
-        // Load actual statistics from dummy data
-        // In a real app, this would come from the database
-        val learnersCount = 20 // Based on dummy data in SupervisorManagementActivity
-        val teachersCount = 10 // Based on dummy data in SupervisorManagementActivity
-        val pairingsCount = 0 // No pairings created yet
+        // Load real statistics from server
+        lifecycleScope.launch {
+            try {
+                val result = repository.getStatistics()
+                if (result.isSuccess) {
+                    val stats = result.getOrNull()!!
 
-        binding.tvLearnersCount.text = learnersCount.toString()
-        binding.tvTeachersCount.text = teachersCount.toString()
-        binding.tvPairingsCount.text = pairingsCount.toString()
+                    // Update UI with real statistics
+                    binding.tvLearnersCount.text = stats.learnAskers.toString()
+                    binding.tvTeachersCount.text = stats.learnGivers.toString()
+                    binding.tvPairingsCount.text = stats.totalPairings.toString()
+
+                    println("[DEBUG_LOG] Statistics loaded - Learners: ${stats.learnAskers}, Teachers: ${stats.learnGivers}, Pairings: ${stats.totalPairings}")
+                } else {
+                    // Fallback to default values if server request fails
+                    binding.tvLearnersCount.text = "0"
+                    binding.tvTeachersCount.text = "0"
+                    binding.tvPairingsCount.text = "0"
+
+                    Toast.makeText(this@SupervisorActivity, "Failed to load statistics: ${result.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
+                    println("[DEBUG_LOG] Failed to load statistics: ${result.exceptionOrNull()?.message}")
+                }
+            } catch (e: Exception) {
+                // Fallback to default values if there's an error
+                binding.tvLearnersCount.text = "0"
+                binding.tvTeachersCount.text = "0"
+                binding.tvPairingsCount.text = "0"
+
+                Toast.makeText(this@SupervisorActivity, "Error loading statistics: ${e.message}", Toast.LENGTH_SHORT).show()
+                println("[DEBUG_LOG] Error loading statistics: ${e.message}")
+            }
+        }
     }
 
     private fun handleViewAllUsers() {

@@ -175,7 +175,7 @@ Register a new user account.
 ```json
 {
   "email": "user@example.com",
-  "password": "SecurePass123",
+  "password": "YourPassword",
   "firstName": "John",
   "lastName": "Doe",
   "phone": "+1234567890"
@@ -212,7 +212,7 @@ Authenticate user and receive JWT token.
 ```json
 {
   "email": "user@example.com",
-  "password": "SecurePass123"
+  "password": "YourPassword"
 }
 ```
 
@@ -375,7 +375,7 @@ Authorization: Bearer <token>
 **Request Body:**
 ```json
 {
-  "password": "SecurePass123"
+  "password": "YourPassword"
 }
 ```
 
@@ -662,18 +662,6 @@ Authorization: Bearer <admin-token>
 
 ## 🧪 Testing
 
-### Default Test Accounts
-
-The database includes default test accounts:
-
-**Admin Account:**
-- Email: `admin@tachlit.com`
-- Password: `Admin123!`
-
-**User Account:**
-- Email: `user@tachlit.com`
-- Password: `User123!`
-
 ### Example API Calls
 
 ```bash
@@ -682,7 +670,7 @@ curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
-    "password": "Test123!",
+    "password": "YourPassword",
     "firstName": "Test",
     "lastName": "User",
     "phone": "+1234567890"
@@ -693,7 +681,7 @@ curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
-    "password": "Test123!"
+    "password": "YourPassword"
   }'
 
 # Get current user (replace TOKEN with actual token)

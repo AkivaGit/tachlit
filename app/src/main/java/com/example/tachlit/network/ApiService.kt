@@ -8,10 +8,10 @@ interface ApiService {
     // Auth endpoints
     @POST("api/auth/register")
     suspend fun registerUser(@Body request: RegisterRequest): Response<RegisterResponse>
-    
+
     @POST("api/auth/login")
     suspend fun loginUser(@Body request: LoginRequest): Response<LoginResponse>
-    
+
     // Admin endpoints (for supervisor)
     @GET("api/admin/users")
     suspend fun getAllUsers(
@@ -19,12 +19,17 @@ interface ApiService {
         @Query("page") page: Int = 1,
         @Query("pageSize") pageSize: Int = 100
     ): Response<UsersResponse>
-    
+
     @GET("api/admin/users/{id}")
     suspend fun getUserById(
         @Header("Authorization") token: String,
         @Path("id") id: Long
     ): Response<UserResponse>
+
+    @GET("api/admin/stats")
+    suspend fun getStatistics(
+        @Header("Authorization") token: String
+    ): Response<StatisticsResponse>
 }
 
 // Request/Response data classes
@@ -90,4 +95,23 @@ data class PaginationData(
     val pageSize: Int,
     val total: Int,
     val totalPages: Int
+)
+
+data class StatisticsResponse(
+    val success: Boolean,
+    val message: String,
+    val stats: StatisticsData?
+)
+
+data class StatisticsData(
+    val totalUsers: Int,
+    val learnAskers: Int,
+    val learnGivers: Int,
+    val officeVolunteers: Int,
+    val foodVolunteers: Int,
+    val supervisors: Int,
+    val unmatchedLearners: Int,
+    val availableTeachers: Int,
+    val totalPairings: Int,
+    val recentRegistrations: Int
 )

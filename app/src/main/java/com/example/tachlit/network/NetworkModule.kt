@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 object NetworkModule {
     // TODO: Replace with your actual Render URL
     // Example: "https://tachlit-server.onrender.com/"
-    private const val BASE_URL = "https://your-render-app-name.onrender.com/"
+    private const val BASE_URL = "https://tachlit.onrender.com/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

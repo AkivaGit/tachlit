@@ -110,13 +110,13 @@ CREATE INDEX IF NOT EXISTS idx_food_volunteers_user_id ON food_volunteers(user_i
 CREATE INDEX IF NOT EXISTS idx_pairings_learn_asker_id ON pairings(learn_asker_id);
 CREATE INDEX IF NOT EXISTS idx_pairings_learn_giver_id ON pairings(learn_giver_id);
 
--- Insert default supervisor user (password: Admin123!)
+-- Insert default supervisor user (password: admin123)
 -- Note: This is for development/testing purposes only
 -- In production, create admin users through a secure process
 INSERT INTO users (email, password_hash, name, phone, city, user_type)
 VALUES (
     'supervisor@tachlit.com',
-    '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.s5uO7u', -- Admin123!
+    '$2b$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- admin123
     'System Administrator',
     '+972-50-1234567',
     'Jerusalem',

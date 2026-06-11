@@ -159,4 +159,24 @@ class TachlitRepository(
     fun getAllPairings(): Flow<List<Pairing>> {
         return pairingDao.getAllPairings()
     }
+
+    // Statistics operations
+    suspend fun getStatistics(): Result<com.example.tachlit.network.StatisticsData> {
+        return try {
+            val token = supervisorToken
+            if (token != null) {
+                val response = apiService.getStatistics("Bearer $token")
+                if (response.isSuccessful && response.body()?.success == true) {
+                    val stats = response.body()!!.stats!!
+                    Result.success(stats)
+                } else {
+                    Result.failure(Exception("Failed to fetch statistics: ${response.body()?.message ?: response.message()}"))
+                }
+            } else {
+                Result.failure(Exception("No supervisor token available"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

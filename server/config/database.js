@@ -249,7 +249,7 @@ const initializeDatabase = async () => {
     await query('CREATE INDEX IF NOT EXISTS idx_pairings_learn_asker_id ON pairings(learn_asker_id)');
     await query('CREATE INDEX IF NOT EXISTS idx_pairings_learn_giver_id ON pairings(learn_giver_id)');
 
-    // Insert default supervisor user (password: Admin123!)
+    // Insert default supervisor user (password: admin123)
     await query(`
       INSERT INTO users (email, password_hash, name, phone, city, user_type)
       VALUES (
