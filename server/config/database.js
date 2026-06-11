@@ -254,7 +254,7 @@ const initializeDatabase = async () => {
       INSERT INTO users (email, password_hash, name, phone, city, user_type)
       VALUES (
         'supervisor@tachlit.com',
-        '$2b$12$BC1KHpjQ50bOSEKUU7FIu.lnZW7d0ujj/P6XVls5kGNyAyOpKoq1y',
+        'admin123',
         'System Administrator',
         '+972-50-1234567',
         'Jerusalem',

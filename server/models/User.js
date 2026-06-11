@@ -1,11 +1,10 @@
-const bcrypt = require('bcrypt');
 const { query } = require('../config/database');
 
 class User {
   constructor(userData) {
     this.id = userData.id;
     this.email = userData.email;
-    this.password_hash = userData.password_hash;
+    this.password = userData.password || userData.password_hash; // Support both for compatibility
     this.name = userData.name;
     this.phone = userData.phone;
     this.city = userData.city;
@@ -15,29 +14,21 @@ class User {
     this.updated_at = userData.updated_at;
   }
 
-  // Hash password
-  static async hashPassword(password) {
-    const saltRounds = 12;
-    return await bcrypt.hash(password, saltRounds);
-  }
-
-  // Verify password
+  // Simple password verification - no hashing
   async verifyPassword(password) {
-    return await bcrypt.compare(password, this.password_hash);
+    return password === this.password;
   }
 
   // Create new user
   static async create(userData) {
     const { email, password, name, phone, city, userType = 'LEARN_ASKER' } = userData;
 
-    // Hash password
-    const password_hash = await User.hashPassword(password);
-
+    // Store password as plain text (no hashing)
     const result = await query(
       `INSERT INTO users (email, password_hash, name, phone, city, user_type)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [email, password_hash, name, phone, city, userType]
+      [email, password, name, phone, city, userType]
     );
 
     return new User(result.rows[0]);
@@ -176,9 +167,9 @@ class User {
     return await this.update({ is_active: true });
   }
 
-  // Convert to JSON (exclude password_hash)
+  // Convert to JSON (exclude password)
   toJSON() {
-    const { password_hash, ...userWithoutPassword } = this;
+    const { password, password_hash, ...userWithoutPassword } = this;
     return userWithoutPassword;
   }
 
