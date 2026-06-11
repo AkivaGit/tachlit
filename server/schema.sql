@@ -121,7 +121,7 @@ VALUES (
     '+972-50-1234567',
     'Jerusalem',
     'SUPERVISOR'
-) ON CONFLICT (email) DO NOTHING;
+) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash;
 
 -- Create additional indexes for search functionality
 CREATE INDEX IF NOT EXISTS idx_users_name_search ON users USING gin(

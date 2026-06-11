@@ -259,7 +259,7 @@ const initializeDatabase = async () => {
         '+972-50-1234567',
         'Jerusalem',
         'SUPERVISOR'
-      ) ON CONFLICT (email) DO NOTHING
+      ) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash
     `);
 
     console.log('Database tables initialized successfully');
