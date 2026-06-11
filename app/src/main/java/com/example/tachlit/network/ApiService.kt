@@ -26,6 +26,12 @@ interface ApiService {
         @Path("id") id: Long
     ): Response<UserResponse>
 
+    @DELETE("api/admin/users/{id}")
+    suspend fun deleteUser(
+        @Header("Authorization") token: String,
+        @Path("id") id: Long
+    ): Response<DeleteUserResponse>
+
     @GET("api/admin/stats")
     suspend fun getStatistics(
         @Header("Authorization") token: String
@@ -110,6 +116,11 @@ data class StatisticsResponse(
     val success: Boolean,
     val message: String,
     val stats: StatisticsData?
+)
+
+data class DeleteUserResponse(
+    val success: Boolean,
+    val message: String
 )
 
 data class StatisticsData(

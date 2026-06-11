@@ -42,6 +42,15 @@ class SupervisorManagementActivity : AppCompatActivity() {
             database.pairingDao()
         )
 
+        // Get supervisor token from intent and set it in repository
+        val supervisorToken = intent.getStringExtra("supervisor_token")
+        if (supervisorToken != null) {
+            repository.setSupervisorToken(supervisorToken)
+            println("[DEBUG_LOG] SupervisorManagementActivity: Supervisor token set successfully")
+        } else {
+            println("[DEBUG_LOG] SupervisorManagementActivity: No supervisor token received from intent")
+        }
+
         val viewType = intent.getStringExtra(EXTRA_VIEW_TYPE) ?: VIEW_ALL_USERS
         setupUI(viewType)
         setupRecyclerViews()
@@ -69,13 +78,23 @@ class SupervisorManagementActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerViews() {
-        learnersAdapter = LearnersAdapter { learner, user ->
-            onLearnerSelected(learner, user)
-        }
+        learnersAdapter = LearnersAdapter(
+            onLearnerClick = { learner, user ->
+                onLearnerSelected(learner, user)
+            },
+            onLearnerLongClick = { learner, user ->
+                showDeleteUserConfirmation(user)
+            }
+        )
 
-        teachersAdapter = TeachersAdapter { teacher, user ->
-            onTeacherSelected(teacher, user)
-        }
+        teachersAdapter = TeachersAdapter(
+            onTeacherClick = { teacher, user ->
+                onTeacherSelected(teacher, user)
+            },
+            onTeacherLongClick = { teacher, user ->
+                showDeleteUserConfirmation(user)
+            }
+        )
 
         binding.recyclerViewLearners.apply {
             layoutManager = LinearLayoutManager(this@SupervisorManagementActivity)
@@ -107,9 +126,33 @@ class SupervisorManagementActivity : AppCompatActivity() {
                     // Load real data from repository
                     println("[DEBUG_LOG] Loading all users from repository")
                     repository.getAllUsers().collect { users ->
+                        println("[DEBUG_LOG] Received ${users.size} users from repository")
+                        users.forEach { user ->
+                            println("[DEBUG_LOG] User: id=${user.id}, name=${user.name}, userType='${user.userType}'")
+                        }
+
                         // Separate users by type
-                        val learners = users.filter { it.userType == UserType.LEARN_ASKER.name }
-                        val teachers = users.filter { it.userType == UserType.LEARN_GIVER.name }
+                        println("[DEBUG_LOG] About to filter users. Total users: ${users.size}")
+                        println("[DEBUG_LOG] Expected userTypes: LEARN_ASKER='${UserType.LEARN_ASKER.name}', LEARN_GIVER='${UserType.LEARN_GIVER.name}'")
+
+                        // Debug: Print all user types we received
+                        users.forEach { user ->
+                            println("[DEBUG_LOG] User ${user.name} has userType: '${user.userType}' (length: ${user.userType.length})")
+                        }
+
+                        val learners = users.filter { 
+                            val matches = it.userType == UserType.LEARN_ASKER.name
+                            println("[DEBUG_LOG] User ${it.name} userType '${it.userType}' matches LEARN_ASKER: $matches")
+                            matches
+                        }
+                        val teachers = users.filter { 
+                            val matches = it.userType == UserType.LEARN_GIVER.name
+                            println("[DEBUG_LOG] User ${it.name} userType '${it.userType}' matches LEARN_GIVER: $matches")
+                            matches
+                        }
+
+                        println("[DEBUG_LOG] Filtered learners: ${learners.size}, teachers: ${teachers.size}")
+                        println("[DEBUG_LOG] Looking for userType: '${UserType.LEARN_ASKER.name}' and '${UserType.LEARN_GIVER.name}'")
 
                         // For now, create simple pairs with empty LearnAsker/LearnGiver objects
                         val learnerPairs = learners.map { user ->
@@ -138,7 +181,15 @@ class SupervisorManagementActivity : AppCompatActivity() {
                 }
                 VIEW_UNMATCHED_LEARNERS -> {
                     repository.getAllUsers().collect { users ->
-                        val learners = users.filter { it.userType == UserType.LEARN_ASKER.name }
+                        println("[DEBUG_LOG] VIEW_UNMATCHED_LEARNERS: Received ${users.size} users from repository")
+                        users.forEach { user ->
+                            println("[DEBUG_LOG] UNMATCHED: User ${user.name} has userType: '${user.userType}'")
+                        }
+                        val learners = users.filter { 
+                            val matches = it.userType == UserType.LEARN_ASKER.name
+                            println("[DEBUG_LOG] UNMATCHED: User ${it.name} userType '${it.userType}' matches LEARN_ASKER: $matches")
+                            matches
+                        }
                         val learnerPairs = learners.map { user ->
                             Pair(
                                 LearnAsker(userId = user.id, subjects = "", learningGoals = "", preferredSchedule = "", experienceLevel = "Beginner"),
@@ -447,6 +498,58 @@ class SupervisorManagementActivity : AppCompatActivity() {
             }
             .setNegativeButton("ביטול", null)
             .show()
+    }
+
+    private fun showDeleteUserConfirmation(user: User) {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("מחיקת משתמש")
+            .setMessage("האם אתה רוצה למחוק משתמש זה?\n\nשם: ${user.name} ${user.familyName}\nאימייל: ${user.email}")
+            .setPositiveButton("כן") { _, _ ->
+                deleteUser(user)
+            }
+            .setNegativeButton("ביטול", null)
+            .create()
+
+        dialog.show()
+    }
+
+    private fun deleteUser(user: User) {
+        lifecycleScope.launch {
+            try {
+                println("[DEBUG_LOG] Attempting to delete user: ${user.name} (id=${user.id})")
+                val result = repository.deleteUser(user.id)
+
+                if (result.isSuccess) {
+                    println("[DEBUG_LOG] User deleted successfully")
+                    // Show success message
+                    AlertDialog.Builder(this@SupervisorManagementActivity)
+                        .setTitle("הצלחה")
+                        .setMessage("המשתמש נמחק בהצלחה")
+                        .setPositiveButton("אישור", null)
+                        .show()
+
+                    // Refresh the current view
+                    val currentViewType = intent.getStringExtra(EXTRA_VIEW_TYPE) ?: VIEW_ALL_USERS
+                    loadDataBasedOnViewType(currentViewType)
+                } else {
+                    println("[DEBUG_LOG] Failed to delete user: ${result.exceptionOrNull()?.message}")
+                    // Show error message
+                    AlertDialog.Builder(this@SupervisorManagementActivity)
+                        .setTitle("שגיאה")
+                        .setMessage("שגיאה במחיקת המשתמש: ${result.exceptionOrNull()?.message}")
+                        .setPositiveButton("אישור", null)
+                        .show()
+                }
+            } catch (e: Exception) {
+                println("[DEBUG_LOG] Exception during user deletion: ${e.message}")
+                // Show error message
+                AlertDialog.Builder(this@SupervisorManagementActivity)
+                    .setTitle("שגיאה")
+                    .setMessage("שגיאה במחיקת המשתמש: ${e.message}")
+                    .setPositiveButton("אישור", null)
+                    .show()
+            }
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

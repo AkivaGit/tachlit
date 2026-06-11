@@ -8,8 +8,8 @@ interface UserDao {
     @Query("SELECT * FROM users")
     fun getAllUsers(): Flow<List<User>>
 
-    @Query("SELECT * FROM users WHERE id = :id")
-    fun getUserById(id: Long): User?
+    @Query("SELECT * FROM users WHERE id = :userId")
+    fun getUserById(userId: Long): User?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertUser(user: User): Long

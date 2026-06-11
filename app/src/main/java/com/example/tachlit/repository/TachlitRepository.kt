@@ -22,6 +22,10 @@ class TachlitRepository(
     fun setSupervisorToken(token: String) {
         supervisorToken = token
     }
+
+    fun getSupervisorToken(): String? {
+        return supervisorToken
+    }
     // User operations - Remote first, local fallback
     suspend fun registerUser(user: User): Result<User> {
         return try {
@@ -81,10 +85,14 @@ class TachlitRepository(
     fun getAllUsers(): Flow<List<User>> = flow {
         try {
             val token = supervisorToken
+            println("[DEBUG_LOG] getAllUsers: supervisorToken = ${if (token != null) "present" else "null"}")
             if (token != null) {
+                println("[DEBUG_LOG] getAllUsers: Making API call to get all users")
                 val response = apiService.getAllUsers("Bearer $token")
+                println("[DEBUG_LOG] getAllUsers: API response - isSuccessful: ${response.isSuccessful}, code: ${response.code()}")
                 if (response.isSuccessful && response.body()?.success == true) {
                     val users = response.body()!!.data!!.users.map { userData ->
+                        println("[DEBUG_LOG] getAllUsers: Server user - id=${userData.id}, name=${userData.name}, userType='${userData.userType}'")
                         User(
                             id = userData.id,
                             name = userData.name,
@@ -96,17 +104,24 @@ class TachlitRepository(
                             userType = userData.userType
                         )
                     }
+                    println("[DEBUG_LOG] getAllUsers: Emitting ${users.size} users from server")
                     emit(users)
                     return@flow
+                } else {
+                    println("[DEBUG_LOG] getAllUsers: API call failed - success: ${response.body()?.success}, message: ${response.body()?.message}")
                 }
             }
             // Fallback to local data - collect from the Flow
+            println("[DEBUG_LOG] getAllUsers: Falling back to local data")
             userDao.getAllUsers().collect { localUsers ->
+                println("[DEBUG_LOG] getAllUsers: Emitting ${localUsers.size} users from local database")
                 emit(localUsers)
             }
         } catch (e: Exception) {
+            println("[DEBUG_LOG] getAllUsers: Exception occurred: ${e.message}")
             // Fallback to local data - collect from the Flow
             userDao.getAllUsers().collect { localUsers ->
+                println("[DEBUG_LOG] getAllUsers: Exception fallback - Emitting ${localUsers.size} users from local database")
                 emit(localUsers)
             }
         }
@@ -163,6 +178,31 @@ class TachlitRepository(
 
     fun getAllPairings(): Flow<List<Pairing>> {
         return pairingDao.getAllPairings()
+    }
+
+    // User deletion operations
+    suspend fun deleteUser(userId: Long): Result<String> {
+        return try {
+            val token = supervisorToken
+            if (token != null) {
+                println("[DEBUG_LOG] deleteUser: Deleting user with id=$userId")
+                val response = apiService.deleteUser("Bearer $token", userId)
+                if (response.isSuccessful && response.body()?.success == true) {
+                    // Also delete from local database
+                    val localUser = userDao.getUserById(userId)
+                    if (localUser != null) {
+                        userDao.deleteUser(localUser)
+                    }
+                    Result.success(response.body()!!.message)
+                } else {
+                    Result.failure(Exception("Failed to delete user: ${response.body()?.message ?: response.message()}"))
+                }
+            } else {
+                Result.failure(Exception("No supervisor token available"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     // Statistics operations

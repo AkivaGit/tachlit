@@ -150,6 +150,8 @@ class SupervisorActivity : AppCompatActivity() {
         // Navigate to all users screen
         val intent = Intent(this, SupervisorManagementActivity::class.java)
         intent.putExtra(SupervisorManagementActivity.EXTRA_VIEW_TYPE, SupervisorManagementActivity.VIEW_ALL_USERS)
+        // Pass the supervisor token so the new activity can access the API
+        intent.putExtra("supervisor_token", repository.getSupervisorToken())
         startActivity(intent)
     }
 
@@ -157,6 +159,8 @@ class SupervisorActivity : AppCompatActivity() {
         // Navigate to unmatched learners screen
         val intent = Intent(this, SupervisorManagementActivity::class.java)
         intent.putExtra(SupervisorManagementActivity.EXTRA_VIEW_TYPE, SupervisorManagementActivity.VIEW_UNMATCHED_LEARNERS)
+        // Pass the supervisor token so the new activity can access the API
+        intent.putExtra("supervisor_token", repository.getSupervisorToken())
         startActivity(intent)
     }
 
@@ -164,6 +168,8 @@ class SupervisorActivity : AppCompatActivity() {
         // Navigate to available teachers screen
         val intent = Intent(this, SupervisorManagementActivity::class.java)
         intent.putExtra(SupervisorManagementActivity.EXTRA_VIEW_TYPE, SupervisorManagementActivity.VIEW_AVAILABLE_TEACHERS)
+        // Pass the supervisor token so the new activity can access the API
+        intent.putExtra("supervisor_token", repository.getSupervisorToken())
         startActivity(intent)
     }
 
@@ -171,6 +177,8 @@ class SupervisorActivity : AppCompatActivity() {
         // Navigate to suggested matches screen
         val intent = Intent(this, SupervisorManagementActivity::class.java)
         intent.putExtra(SupervisorManagementActivity.EXTRA_VIEW_TYPE, SupervisorManagementActivity.VIEW_SUGGESTED_MATCHES)
+        // Pass the supervisor token so the new activity can access the API
+        intent.putExtra("supervisor_token", repository.getSupervisorToken())
         startActivity(intent)
     }
 

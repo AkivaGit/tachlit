@@ -10,7 +10,8 @@ import com.example.tachlit.data.User
 import com.example.tachlit.databinding.ItemLearnerBinding
 
 class LearnersAdapter(
-    private val onLearnerClick: (LearnAsker, User) -> Unit
+    private val onLearnerClick: (LearnAsker, User) -> Unit,
+    private val onLearnerLongClick: (LearnAsker, User) -> Unit
 ) : ListAdapter<Pair<LearnAsker, User>, LearnersAdapter.LearnerViewHolder>(LearnerDiffCallback()) {
 
     override fun submitList(list: List<Pair<LearnAsker, User>>?) {
@@ -30,12 +31,12 @@ class LearnersAdapter(
     override fun onBindViewHolder(holder: LearnerViewHolder, position: Int) {
         val item = getItem(position)
         println("[DEBUG_LOG] LearnersAdapter onBindViewHolder called for position $position, total items: ${itemCount}")
-        holder.bind(item.first, item.second, onLearnerClick)
+        holder.bind(item.first, item.second, onLearnerClick, onLearnerLongClick)
     }
 
     class LearnerViewHolder(private val binding: ItemLearnerBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(learner: LearnAsker, user: User, onLearnerClick: (LearnAsker, User) -> Unit) {
+        fun bind(learner: LearnAsker, user: User, onLearnerClick: (LearnAsker, User) -> Unit, onLearnerLongClick: (LearnAsker, User) -> Unit) {
             binding.tvLearnerName.text = user.name
             binding.tvLearnerCity.text = user.city
             binding.tvLearnerSubjects.text = "מקצועות: ${learner.subjects}"
@@ -44,6 +45,11 @@ class LearnersAdapter(
 
             binding.root.setOnClickListener {
                 onLearnerClick(learner, user)
+            }
+
+            binding.root.setOnLongClickListener {
+                onLearnerLongClick(learner, user)
+                true
             }
         }
     }

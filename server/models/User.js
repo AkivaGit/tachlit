@@ -22,7 +22,7 @@ class User {
 
   // Create new user
   static async create(userData) {
-    const { email, password, name, family_name, phone, city, userType = 'LEARN_ASKER' } = userData;
+    const { email, password, name, family_name, phone, city, userType } = userData;
 
     // Store password as plain text (no hashing)
     const result = await query(

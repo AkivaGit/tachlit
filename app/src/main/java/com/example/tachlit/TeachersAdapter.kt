@@ -10,7 +10,8 @@ import com.example.tachlit.data.User
 import com.example.tachlit.databinding.ItemTeacherBinding
 
 class TeachersAdapter(
-    private val onTeacherClick: (LearnGiver, User) -> Unit
+    private val onTeacherClick: (LearnGiver, User) -> Unit,
+    private val onTeacherLongClick: (LearnGiver, User) -> Unit
 ) : ListAdapter<Pair<LearnGiver, User>, TeachersAdapter.TeacherViewHolder>(TeacherDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TeacherViewHolder {
@@ -24,12 +25,12 @@ class TeachersAdapter(
 
     override fun onBindViewHolder(holder: TeacherViewHolder, position: Int) {
         val item = getItem(position)
-        holder.bind(item.first, item.second, onTeacherClick)
+        holder.bind(item.first, item.second, onTeacherClick, onTeacherLongClick)
     }
 
     class TeacherViewHolder(private val binding: ItemTeacherBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(teacher: LearnGiver, user: User, onTeacherClick: (LearnGiver, User) -> Unit) {
+        fun bind(teacher: LearnGiver, user: User, onTeacherClick: (LearnGiver, User) -> Unit, onTeacherLongClick: (LearnGiver, User) -> Unit) {
             binding.tvTeacherName.text = user.name
             binding.tvTeacherCity.text = user.city
             binding.tvTeacherSubjects.text = "מקצועות: ${teacher.subjectsCanTeach}"
@@ -42,6 +43,11 @@ class TeachersAdapter(
 
             binding.root.setOnClickListener {
                 onTeacherClick(teacher, user)
+            }
+
+            binding.root.setOnLongClickListener {
+                onTeacherLongClick(teacher, user)
+                true
             }
         }
     }

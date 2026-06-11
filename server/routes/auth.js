@@ -27,7 +27,7 @@ router.post('/register', validateRegistration, async (req, res) => {
       family_name,
       phone,
       city,
-      userType: userType || 'LEARN_ASKER' // Default user type for registration
+      userType: userType // Use the provided userType without defaulting
     });
 
     // Generate JWT token
