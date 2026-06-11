@@ -5,7 +5,7 @@ const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 require('dotenv').config();
 
-const { initializeDatabase } = require('./config/database');
+const { initializeDatabase, testConnection } = require('./config/database');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
@@ -98,19 +98,95 @@ app.use((err, req, res, next) => {
 
 // Initialize database and start server
 const startServer = async () => {
+  console.log('='.repeat(50));
+  console.log('Starting Tachlit Server...');
+  console.log('='.repeat(50));
+
   try {
+    console.log('Step 1: Testing database connection...');
+    // Test database connection first
+    await testConnection();
+    console.log('✓ Database connection test passed');
+
+    console.log('Step 2: Initializing database tables...');
     // Initialize database tables
     await initializeDatabase();
-    console.log('Database initialized successfully');
+    console.log('✓ Database tables initialized successfully');
 
+    console.log('Step 3: Starting HTTP server...');
     // Start server
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`Health check: http://localhost:${PORT}/health`);
+    const server = app.listen(PORT, () => {
+      console.log('='.repeat(50));
+      console.log('🚀 SERVER STARTED SUCCESSFULLY!');
+      console.log('='.repeat(50));
+      console.log(`📍 Server running on port: ${PORT}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🏥 Health check: http://localhost:${PORT}/health`);
+      console.log(`📊 Admin panel: http://localhost:${PORT}/api/admin`);
+      console.log('='.repeat(50));
     });
+
+    // Handle server errors
+    server.on('error', (error) => {
+      console.error('Server error:', error);
+      if (error.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Please use a different port.`);
+      }
+      process.exit(1);
+    });
+
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('SIGTERM received. Shutting down gracefully...');
+      server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+      });
+    });
+
+    process.on('SIGINT', () => {
+      console.log('SIGINT received. Shutting down gracefully...');
+      server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+      });
+    });
+
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('='.repeat(50));
+    console.error('❌ FAILED TO START SERVER');
+    console.error('='.repeat(50));
+
+    if (error.message && error.message.includes('DATABASE_URL')) {
+      console.error('🔧 DATABASE CONFIGURATION ERROR:');
+      console.error('   The DATABASE_URL environment variable is not set.');
+      console.error('   Please ensure your PostgreSQL database is configured in Render.com');
+      console.error('   and the DATABASE_URL environment variable is properly set.');
+    } else if (error.code === 'ECONNREFUSED') {
+      console.error('🔧 DATABASE CONNECTION ERROR:');
+      console.error('   Cannot connect to PostgreSQL database.');
+      console.error('   Please check:');
+      console.error('   1. Database service is running');
+      console.error('   2. DATABASE_URL is correct');
+      console.error('   3. Network connectivity');
+      console.error('   4. Database credentials are valid');
+    } else if (error.code === 'ENOTFOUND') {
+      console.error('🔧 DATABASE HOST ERROR:');
+      console.error('   Database host not found.');
+      console.error('   Please verify the database hostname in DATABASE_URL');
+    } else {
+      console.error('🔧 GENERAL ERROR:');
+      console.error('   Error details:', error.message);
+      console.error('   Stack trace:', error.stack);
+    }
+
+    console.error('='.repeat(50));
+    console.error('For support, please check the Render.com logs and ensure:');
+    console.error('1. PostgreSQL service is created and running');
+    console.error('2. DATABASE_URL environment variable is set');
+    console.error('3. Database and web service are in the same region');
+    console.error('='.repeat(50));
+
     process.exit(1);
   }
 };
