@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     name VARCHAR(200) NOT NULL,
+    family_name VARCHAR(200) NOT NULL,
     phone VARCHAR(20),
     city VARCHAR(100),
     user_type VARCHAR(30) DEFAULT 'LEARN_ASKER' CHECK (user_type IN ('LEARN_ASKER', 'LEARN_GIVER', 'OFFICE_VOLUNTEER', 'FOOD_VOLUNTEER', 'SUPERVISOR')),
@@ -113,15 +114,18 @@ CREATE INDEX IF NOT EXISTS idx_pairings_learn_giver_id ON pairings(learn_giver_i
 -- Insert default supervisor user (password: admin123)
 -- Note: This is for development/testing purposes only
 -- In production, create admin users through a secure process
-INSERT INTO users (email, password_hash, name, phone, city, user_type)
+INSERT INTO users (email, password_hash, name, family_name, phone, city, user_type)
 VALUES (
     'supervisor@tachlit.com',
     'admin123', -- admin123
-    'System Administrator',
+    'System',
+    'Administrator',
     '+972-50-1234567',
     'Jerusalem',
     'SUPERVISOR'
-) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash;
+) ON CONFLICT (email) DO UPDATE SET 
+    password_hash = EXCLUDED.password_hash,
+    family_name = EXCLUDED.family_name;
 
 -- Create additional indexes for search functionality
 CREATE INDEX IF NOT EXISTS idx_users_name_search ON users USING gin(
@@ -137,7 +141,8 @@ COMMENT ON TABLE users IS 'User accounts for the Tachlit application';
 COMMENT ON COLUMN users.id IS 'Primary key, auto-incrementing user ID';
 COMMENT ON COLUMN users.email IS 'Unique email address for user login';
 COMMENT ON COLUMN users.password_hash IS 'Bcrypt hashed password';
-COMMENT ON COLUMN users.name IS 'User full name';
+COMMENT ON COLUMN users.name IS 'User first name';
+COMMENT ON COLUMN users.family_name IS 'User family name';
 COMMENT ON COLUMN users.phone IS 'Optional phone number';
 COMMENT ON COLUMN users.city IS 'User city';
 COMMENT ON COLUMN users.user_type IS 'User type: LEARN_ASKER, LEARN_GIVER, OFFICE_VOLUNTEER, FOOD_VOLUNTEER, SUPERVISOR';

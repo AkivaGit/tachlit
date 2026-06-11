@@ -6,6 +6,7 @@ class User {
     this.email = userData.email;
     this.password = userData.password || userData.password_hash; // Support both for compatibility
     this.name = userData.name;
+    this.family_name = userData.family_name;
     this.phone = userData.phone;
     this.city = userData.city;
     this.user_type = userData.user_type || 'LEARN_ASKER';
@@ -21,14 +22,14 @@ class User {
 
   // Create new user
   static async create(userData) {
-    const { email, password, name, phone, city, userType = 'LEARN_ASKER' } = userData;
+    const { email, password, name, family_name, phone, city, userType = 'LEARN_ASKER' } = userData;
 
     // Store password as plain text (no hashing)
     const result = await query(
-      `INSERT INTO users (email, password_hash, name, phone, city, user_type)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO users (email, password_hash, name, family_name, phone, city, user_type)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [email, password, name, phone, city, userType]
+      [email, password, name, family_name, phone, city, userType]
     );
 
     return new User(result.rows[0]);
@@ -71,12 +72,12 @@ class User {
     const params = [];
 
     if (search) {
-      whereClause += ' AND (email ILIKE $' + (params.length + 1) + ' OR name ILIKE $' + (params.length + 1) + ')';
+      whereClause += ' AND (email ILIKE $' + (params.length + 1) + ' OR name ILIKE $' + (params.length + 1) + ' OR family_name ILIKE $' + (params.length + 1) + ')';
       params.push(`%${search}%`);
     }
 
     // Validate sortBy to prevent SQL injection
-    const allowedSortFields = ['id', 'email', 'name', 'user_type', 'is_active', 'created_at', 'updated_at'];
+    const allowedSortFields = ['id', 'email', 'name', 'family_name', 'user_type', 'is_active', 'created_at', 'updated_at'];
     const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'created_at';
     const validSortOrder = ['ASC', 'DESC'].includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'DESC';
 
@@ -110,7 +111,7 @@ class User {
 
   // Update user
   async update(updateData) {
-    const allowedFields = ['name', 'phone', 'city', 'user_type', 'is_active'];
+    const allowedFields = ['name', 'family_name', 'phone', 'city', 'user_type', 'is_active'];
     const updates = [];
     const values = [];
     let paramCount = 1;
@@ -179,6 +180,7 @@ class User {
       id: this.id,
       email: this.email,
       name: this.name,
+      family_name: this.family_name,
       phone: this.phone,
       city: this.city,
       userType: this.user_type,

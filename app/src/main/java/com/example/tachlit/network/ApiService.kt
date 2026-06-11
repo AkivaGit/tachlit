@@ -37,6 +37,7 @@ data class RegisterRequest(
     val email: String,
     val password: String,
     val name: String,
+    val family_name: String,
     val phone: String,
     val city: String,
     val userType: String
@@ -82,6 +83,7 @@ data class UserData(
     val id: Long,
     val email: String,
     val name: String,
+    val family_name: String?,
     val phone: String?,
     val city: String?,
     val userType: String,

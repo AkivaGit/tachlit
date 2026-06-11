@@ -24,6 +24,7 @@
 
     <!-- Common -->
     <string name="name">שם</string>
+    <string name="family_name">שם משפחה</string>
     <string name="email">אימייל</string>
     <string name="phone">טלפון</string>
     <string name="city">עיר</string>

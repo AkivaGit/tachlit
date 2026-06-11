@@ -27,8 +27,9 @@ class TachlitRepository(
         return try {
             val request = RegisterRequest(
                 email = user.email,
-                password = "defaultPassword", // You'll need to pass this from the UI
+                password = user.password,
                 name = user.name,
+                family_name = user.familyName,
                 phone = user.phone,
                 city = user.city,
                 userType = user.userType
@@ -40,7 +41,9 @@ class TachlitRepository(
                 val registeredUser = User(
                     id = userData.id,
                     name = userData.name,
+                    familyName = userData.family_name ?: "",
                     email = userData.email,
+                    password = "", // Password not returned from server for security
                     phone = userData.phone ?: "",
                     city = userData.city ?: "",
                     userType = userData.userType
@@ -85,7 +88,9 @@ class TachlitRepository(
                         User(
                             id = userData.id,
                             name = userData.name,
+                            familyName = userData.family_name ?: "",
                             email = userData.email,
+                            password = "", // Password not returned from server for security
                             phone = userData.phone ?: "",
                             city = userData.city ?: "",
                             userType = userData.userType

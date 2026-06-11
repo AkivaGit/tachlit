@@ -55,7 +55,9 @@ class LearnAskerActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 val user = User(
                     name = binding.etName.text.toString().trim(),
+                    familyName = binding.etFamilyName.text.toString().trim(),
                     email = binding.etEmail.text.toString().trim(),
+                    password = binding.etPassword.text.toString().trim(),
                     phone = binding.etPhone.text.toString().trim(),
                     city = binding.etCity.text.toString().trim(),
                     userType = UserType.LEARN_ASKER.name
@@ -104,8 +106,18 @@ class LearnAskerActivity : AppCompatActivity() {
             isValid = false
         }
 
+        if (binding.etFamilyName.text.toString().trim().isEmpty()) {
+            binding.etFamilyName.error = getString(R.string.please_fill_all_fields)
+            isValid = false
+        }
+
         if (binding.etEmail.text.toString().trim().isEmpty()) {
             binding.etEmail.error = getString(R.string.please_fill_all_fields)
+            isValid = false
+        }
+
+        if (binding.etPassword.text.toString().trim().isEmpty()) {
+            binding.etPassword.error = getString(R.string.please_fill_all_fields)
             isValid = false
         }
 

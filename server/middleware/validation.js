@@ -23,32 +23,32 @@ const validateRegistration = [
     .isEmail()
     .normalizeEmail()
     .withMessage('Please provide a valid email address'),
-  
+
   body('password')
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long')
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
     .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
-  
-  body('firstName')
+
+  body('name')
     .trim()
     .isLength({ min: 1, max: 100 })
-    .withMessage('First name is required and must be less than 100 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('First name can only contain letters and spaces'),
-  
-  body('lastName')
+    .withMessage('Name is required and must be less than 100 characters')
+    .matches(/^[a-zA-Z\u0590-\u05FF\s]+$/)
+    .withMessage('Name can only contain letters (English and Hebrew) and spaces'),
+
+  body('family_name')
     .trim()
     .isLength({ min: 1, max: 100 })
-    .withMessage('Last name is required and must be less than 100 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('Last name can only contain letters and spaces'),
-  
+    .withMessage('Family name is required and must be less than 100 characters')
+    .matches(/^[a-zA-Z\u0590-\u05FF\s]+$/)
+    .withMessage('Family name can only contain letters (English and Hebrew) and spaces'),
+
   body('phone')
     .optional()
     .isMobilePhone('any')
     .withMessage('Please provide a valid phone number'),
-  
+
   handleValidationErrors
 ];
 
@@ -58,11 +58,11 @@ const validateLogin = [
     .isEmail()
     .normalizeEmail()
     .withMessage('Please provide a valid email address'),
-  
+
   body('password')
     .notEmpty()
     .withMessage('Password is required'),
-  
+
   handleValidationErrors
 ];
 
@@ -71,7 +71,7 @@ const validateUserId = [
   param('id')
     .isInt({ min: 1 })
     .withMessage('User ID must be a positive integer'),
-  
+
   handleValidationErrors
 ];
 
@@ -81,64 +81,64 @@ const validatePagination = [
     .optional()
     .isInt({ min: 1 })
     .withMessage('Page must be a positive integer'),
-  
+
   query('pageSize')
     .optional()
     .isInt({ min: 1, max: 100 })
     .withMessage('Page size must be between 1 and 100'),
-  
+
   query('search')
     .optional()
     .trim()
     .isLength({ max: 255 })
     .withMessage('Search term must be less than 255 characters'),
-  
+
   query('sortBy')
     .optional()
-    .isIn(['id', 'email', 'first_name', 'last_name', 'role', 'is_active', 'created_at', 'updated_at'])
+    .isIn(['id', 'email', 'name', 'family_name', 'user_type', 'is_active', 'created_at', 'updated_at'])
     .withMessage('Invalid sort field'),
-  
+
   query('sortOrder')
     .optional()
     .isIn(['ASC', 'DESC', 'asc', 'desc'])
     .withMessage('Sort order must be ASC or DESC'),
-  
+
   handleValidationErrors
 ];
 
 // User update validation
 const validateUserUpdate = [
-  body('firstName')
+  body('name')
     .optional()
     .trim()
     .isLength({ min: 1, max: 100 })
-    .withMessage('First name must be between 1 and 100 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('First name can only contain letters and spaces'),
-  
-  body('lastName')
+    .withMessage('Name must be between 1 and 100 characters')
+    .matches(/^[a-zA-Z\u0590-\u05FF\s]+$/)
+    .withMessage('Name can only contain letters (English and Hebrew) and spaces'),
+
+  body('family_name')
     .optional()
     .trim()
     .isLength({ min: 1, max: 100 })
-    .withMessage('Last name must be between 1 and 100 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('Last name can only contain letters and spaces'),
-  
+    .withMessage('Family name must be between 1 and 100 characters')
+    .matches(/^[a-zA-Z\u0590-\u05FF\s]+$/)
+    .withMessage('Family name can only contain letters (English and Hebrew) and spaces'),
+
   body('phone')
     .optional()
     .isMobilePhone('any')
     .withMessage('Please provide a valid phone number'),
-  
+
   body('role')
     .optional()
     .isIn(['user', 'admin'])
     .withMessage('Role must be either user or admin'),
-  
+
   body('is_active')
     .optional()
     .isBoolean()
     .withMessage('is_active must be a boolean value'),
-  
+
   handleValidationErrors
 ];
 
@@ -148,7 +148,7 @@ const validateEmail = [
     .isEmail()
     .normalizeEmail()
     .withMessage('Please provide a valid email address'),
-  
+
   handleValidationErrors
 ];
 
@@ -159,7 +159,7 @@ const validatePassword = [
     .withMessage('Password must be at least 6 characters long')
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
     .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
-  
+
   handleValidationErrors
 ];
 

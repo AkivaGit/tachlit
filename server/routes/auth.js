@@ -8,7 +8,7 @@ const router = express.Router();
 // Register new user
 router.post('/register', validateRegistration, async (req, res) => {
   try {
-    const { email, password, name, phone, city, userType } = req.body;
+    const { email, password, name, family_name, phone, city, userType } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
@@ -24,6 +24,7 @@ router.post('/register', validateRegistration, async (req, res) => {
       email,
       password,
       name,
+      family_name,
       phone,
       city,
       userType: userType || 'LEARN_ASKER' // Default user type for registration
