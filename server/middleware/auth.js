@@ -15,11 +15,12 @@ const authenticateToken = async (req, res, next) => {
     }
 
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+    const jwtSecret = process.env.JWT_SECRET || 'tachlit-default-secret-key-change-in-production';
+    const decoded = jwt.verify(token, jwtSecret);
+
     // Get user from database
     const user = await User.findById(decoded.userId);
-    
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -44,7 +45,7 @@ const authenticateToken = async (req, res, next) => {
         message: 'Invalid token'
       });
     }
-    
+
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
@@ -69,7 +70,7 @@ const requireAdmin = (req, res, next) => {
     });
   }
 
-  if (req.user.role !== 'admin') {
+  if (req.user.user_type !== 'SUPERVISOR') {
     return res.status(403).json({
       success: false,
       message: 'Admin access required'
@@ -89,7 +90,7 @@ const requireRole = (roles) => {
       });
     }
 
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.user_type)) {
       return res.status(403).json({
         success: false,
         message: `Access denied. Required roles: ${roles.join(', ')}`
@@ -102,9 +103,10 @@ const requireRole = (roles) => {
 
 // Generate JWT token
 const generateToken = (userId) => {
+  const jwtSecret = process.env.JWT_SECRET || 'tachlit-default-secret-key-change-in-production';
   return jwt.sign(
     { userId },
-    process.env.JWT_SECRET,
+    jwtSecret,
     { 
       expiresIn: process.env.JWT_EXPIRES_IN || '24h',
       issuer: 'tachlit-backend',
@@ -120,9 +122,10 @@ const optionalAuth = async (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1];
 
     if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const jwtSecret = process.env.JWT_SECRET || 'tachlit-default-secret-key-change-in-production';
+      const decoded = jwt.verify(token, jwtSecret);
       const user = await User.findById(decoded.userId);
-      
+
       if (user && user.is_active) {
         req.user = user;
       }
@@ -131,7 +134,7 @@ const optionalAuth = async (req, res, next) => {
     // Silently ignore authentication errors for optional auth
     console.log('Optional auth failed:', error.message);
   }
-  
+
   next();
 };
 
