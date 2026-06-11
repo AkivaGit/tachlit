@@ -43,11 +43,18 @@ data class RegisterRequest(
     val userType: String
 )
 
+data class ValidationError(
+    val field: String,
+    val message: String,
+    val value: String?
+)
+
 data class RegisterResponse(
     val success: Boolean,
     val message: String,
     val token: String?,
-    val user: UserData?
+    val user: UserData?,
+    val errors: List<ValidationError>?
 )
 
 data class LoginRequest(

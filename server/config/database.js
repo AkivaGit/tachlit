@@ -138,6 +138,7 @@ const initializeDatabase = async () => {
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
         name VARCHAR(200) NOT NULL,
+        family_name VARCHAR(200) NOT NULL,
         phone VARCHAR(20),
         city VARCHAR(100),
         user_type VARCHAR(30) DEFAULT 'LEARN_ASKER' CHECK (user_type IN ('LEARN_ASKER', 'LEARN_GIVER', 'OFFICE_VOLUNTEER', 'FOOD_VOLUNTEER', 'SUPERVISOR')),
@@ -146,6 +147,18 @@ const initializeDatabase = async () => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // Add family_name column if it doesn't exist (for existing databases)
+    try {
+      await query(`
+        ALTER TABLE users 
+        ADD COLUMN IF NOT EXISTS family_name VARCHAR(200) NOT NULL DEFAULT ''
+      `);
+      console.log('✓ Added family_name column to users table if it was missing');
+    } catch (error) {
+      // Column might already exist, which is fine
+      console.log('Note: family_name column already exists or could not be added:', error.message);
+    }
 
     // Create LearnAsker table
     await query(`
@@ -251,15 +264,18 @@ const initializeDatabase = async () => {
 
     // Insert default supervisor user (password: admin123)
     await query(`
-      INSERT INTO users (email, password_hash, name, phone, city, user_type)
+      INSERT INTO users (email, password_hash, name, family_name, phone, city, user_type)
       VALUES (
         'supervisor@tachlit.com',
         'admin123',
-        'System Administrator',
+        'System',
+        'Administrator',
         '+972-50-1234567',
         'Jerusalem',
         'SUPERVISOR'
-      ) ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash
+      ) ON CONFLICT (email) DO UPDATE SET 
+        password_hash = EXCLUDED.password_hash,
+        family_name = EXCLUDED.family_name
     `);
 
     console.log('Database tables initialized successfully');
