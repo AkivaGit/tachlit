@@ -6,10 +6,10 @@ class User {
     this.id = userData.id;
     this.email = userData.email;
     this.password_hash = userData.password_hash;
-    this.first_name = userData.first_name;
-    this.last_name = userData.last_name;
+    this.name = userData.name;
     this.phone = userData.phone;
-    this.role = userData.role || 'user';
+    this.city = userData.city;
+    this.user_type = userData.user_type || 'LEARN_ASKER';
     this.is_active = userData.is_active !== undefined ? userData.is_active : true;
     this.created_at = userData.created_at;
     this.updated_at = userData.updated_at;
@@ -28,18 +28,18 @@ class User {
 
   // Create new user
   static async create(userData) {
-    const { email, password, firstName, lastName, phone, role = 'user' } = userData;
-    
+    const { email, password, name, phone, city, userType = 'LEARN_ASKER' } = userData;
+
     // Hash password
     const password_hash = await User.hashPassword(password);
-    
+
     const result = await query(
-      `INSERT INTO users (email, password_hash, first_name, last_name, phone, role)
+      `INSERT INTO users (email, password_hash, name, phone, city, user_type)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [email, password_hash, firstName, lastName, phone, role]
+      [email, password_hash, name, phone, city, userType]
     );
-    
+
     return new User(result.rows[0]);
   }
 
@@ -49,11 +49,11 @@ class User {
       'SELECT * FROM users WHERE email = $1',
       [email]
     );
-    
+
     if (result.rows.length === 0) {
       return null;
     }
-    
+
     return new User(result.rows[0]);
   }
 
@@ -63,11 +63,11 @@ class User {
       'SELECT * FROM users WHERE id = $1',
       [id]
     );
-    
+
     if (result.rows.length === 0) {
       return null;
     }
-    
+
     return new User(result.rows[0]);
   }
 
@@ -75,27 +75,27 @@ class User {
   static async findAll(options = {}) {
     const { page = 1, pageSize = 20, search = '', sortBy = 'created_at', sortOrder = 'DESC' } = options;
     const offset = (page - 1) * pageSize;
-    
+
     let whereClause = 'WHERE 1=1';
     const params = [];
-    
+
     if (search) {
-      whereClause += ' AND (email ILIKE $' + (params.length + 1) + ' OR first_name ILIKE $' + (params.length + 1) + ' OR last_name ILIKE $' + (params.length + 1) + ')';
+      whereClause += ' AND (email ILIKE $' + (params.length + 1) + ' OR name ILIKE $' + (params.length + 1) + ')';
       params.push(`%${search}%`);
     }
-    
+
     // Validate sortBy to prevent SQL injection
-    const allowedSortFields = ['id', 'email', 'first_name', 'last_name', 'role', 'is_active', 'created_at', 'updated_at'];
+    const allowedSortFields = ['id', 'email', 'name', 'user_type', 'is_active', 'created_at', 'updated_at'];
     const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'created_at';
     const validSortOrder = ['ASC', 'DESC'].includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'DESC';
-    
+
     // Get total count
     const countResult = await query(
       `SELECT COUNT(*) FROM users ${whereClause}`,
       params
     );
     const total = parseInt(countResult.rows[0].count);
-    
+
     // Get users
     const result = await query(
       `SELECT * FROM users ${whereClause} 
@@ -103,9 +103,9 @@ class User {
        LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
       [...params, pageSize, offset]
     );
-    
+
     const users = result.rows.map(row => new User(row));
-    
+
     return {
       users,
       pagination: {
@@ -119,11 +119,11 @@ class User {
 
   // Update user
   async update(updateData) {
-    const allowedFields = ['first_name', 'last_name', 'phone', 'role', 'is_active'];
+    const allowedFields = ['name', 'phone', 'city', 'user_type', 'is_active'];
     const updates = [];
     const values = [];
     let paramCount = 1;
-    
+
     for (const [key, value] of Object.entries(updateData)) {
       if (allowedFields.includes(key) && value !== undefined) {
         updates.push(`${key} = $${paramCount}`);
@@ -131,22 +131,22 @@ class User {
         paramCount++;
       }
     }
-    
+
     if (updates.length === 0) {
       throw new Error('No valid fields to update');
     }
-    
+
     values.push(this.id);
-    
+
     const result = await query(
       `UPDATE users SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`,
       values
     );
-    
+
     if (result.rows.length === 0) {
       throw new Error('User not found');
     }
-    
+
     // Update current instance
     Object.assign(this, result.rows[0]);
     return this;
@@ -158,11 +158,11 @@ class User {
       'DELETE FROM users WHERE id = $1 RETURNING *',
       [this.id]
     );
-    
+
     if (result.rows.length === 0) {
       throw new Error('User not found');
     }
-    
+
     return true;
   }
 
@@ -187,10 +187,10 @@ class User {
     return {
       id: this.id,
       email: this.email,
-      first_name: this.first_name,
-      last_name: this.last_name,
+      name: this.name,
       phone: this.phone,
-      role: this.role,
+      city: this.city,
+      userType: this.user_type,
       is_active: this.is_active,
       created_at: this.created_at,
       updated_at: this.updated_at

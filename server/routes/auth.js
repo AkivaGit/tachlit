@@ -8,7 +8,7 @@ const router = express.Router();
 // Register new user
 router.post('/register', validateRegistration, async (req, res) => {
   try {
-    const { email, password, firstName, lastName, phone } = req.body;
+    const { email, password, name, phone, city, userType } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
@@ -23,10 +23,10 @@ router.post('/register', validateRegistration, async (req, res) => {
     const user = await User.create({
       email,
       password,
-      firstName,
-      lastName,
+      name,
       phone,
-      role: 'user' // Default role for registration
+      city,
+      userType: userType || 'LEARN_ASKER' // Default user type for registration
     });
 
     // Generate JWT token
@@ -42,7 +42,7 @@ router.post('/register', validateRegistration, async (req, res) => {
 
   } catch (error) {
     console.error('Registration error:', error);
-    
+
     // Handle database constraint errors
     if (error.code === '23505') { // PostgreSQL unique constraint error
       return res.status(400).json({

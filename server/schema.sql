@@ -12,10 +12,10 @@ CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
+    name VARCHAR(200) NOT NULL,
     phone VARCHAR(20),
-    role VARCHAR(20) DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+    city VARCHAR(100),
+    user_type VARCHAR(30) DEFAULT 'LEARN_ASKER' CHECK (user_type IN ('LEARN_ASKER', 'LEARN_GIVER', 'OFFICE_VOLUNTEER', 'FOOD_VOLUNTEER', 'SUPERVISOR')),
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -37,54 +37,110 @@ CREATE TRIGGER update_users_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+-- Create LearnAsker table
+CREATE TABLE IF NOT EXISTS learn_askers (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    subjects TEXT NOT NULL,
+    learning_goals TEXT,
+    preferred_schedule TEXT,
+    experience_level VARCHAR(20) DEFAULT 'Beginner' CHECK (experience_level IN ('Beginner', 'Intermediate', 'Advanced')),
+    additional_notes TEXT DEFAULT '',
+    assigned_teacher_id INTEGER,
+    is_matched BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create LearnGiver table
+CREATE TABLE IF NOT EXISTS learn_givers (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    subjects_can_teach TEXT NOT NULL,
+    teaching_experience TEXT,
+    available_schedule TEXT,
+    max_students INTEGER DEFAULT 3,
+    teaching_style TEXT,
+    additional_notes TEXT DEFAULT '',
+    current_student_ids TEXT DEFAULT '',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create OfficeVolunteer table
+CREATE TABLE IF NOT EXISTS office_volunteers (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    skills TEXT,
+    availability TEXT,
+    experience TEXT,
+    additional_notes TEXT DEFAULT '',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create FoodVolunteer table
+CREATE TABLE IF NOT EXISTS food_volunteers (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    dietary_restrictions TEXT,
+    cooking_experience TEXT,
+    availability TEXT,
+    transportation BOOLEAN DEFAULT false,
+    additional_notes TEXT DEFAULT '',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Pairing table
+CREATE TABLE IF NOT EXISTS pairings (
+    id SERIAL PRIMARY KEY,
+    learn_asker_id INTEGER REFERENCES learn_askers(id) ON DELETE CASCADE,
+    learn_giver_id INTEGER REFERENCES learn_givers(id) ON DELETE CASCADE,
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'paused', 'completed', 'cancelled')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_user_type ON users(user_type);
 CREATE INDEX IF NOT EXISTS idx_users_is_active ON users(is_active);
 CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);
+CREATE INDEX IF NOT EXISTS idx_learn_askers_user_id ON learn_askers(user_id);
+CREATE INDEX IF NOT EXISTS idx_learn_givers_user_id ON learn_givers(user_id);
+CREATE INDEX IF NOT EXISTS idx_office_volunteers_user_id ON office_volunteers(user_id);
+CREATE INDEX IF NOT EXISTS idx_food_volunteers_user_id ON food_volunteers(user_id);
+CREATE INDEX IF NOT EXISTS idx_pairings_learn_asker_id ON pairings(learn_asker_id);
+CREATE INDEX IF NOT EXISTS idx_pairings_learn_giver_id ON pairings(learn_giver_id);
 
--- Insert default admin user (password: Admin123!)
+-- Insert default supervisor user (password: Admin123!)
 -- Note: This is for development/testing purposes only
 -- In production, create admin users through a secure process
-INSERT INTO users (email, password_hash, first_name, last_name, role)
+INSERT INTO users (email, password_hash, name, phone, city, user_type)
 VALUES (
-    'admin@tachlit.com',
+    'supervisor@tachlit.com',
     '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.s5uO7u', -- Admin123!
-    'System',
-    'Administrator',
-    'admin'
-) ON CONFLICT (email) DO NOTHING;
-
--- Insert sample regular user (password: User123!)
--- Note: This is for development/testing purposes only
-INSERT INTO users (email, password_hash, first_name, last_name, phone, role)
-VALUES (
-    'user@tachlit.com',
-    '$2b$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- User123!
-    'John',
-    'Doe',
-    '+1234567890',
-    'user'
+    'System Administrator',
+    '+972-50-1234567',
+    'Jerusalem',
+    'SUPERVISOR'
 ) ON CONFLICT (email) DO NOTHING;
 
 -- Create additional indexes for search functionality
 CREATE INDEX IF NOT EXISTS idx_users_name_search ON users USING gin(
-    to_tsvector('english', first_name || ' ' || last_name)
+    to_tsvector('english', name)
 );
 
 -- Create partial indexes for active users
 CREATE INDEX IF NOT EXISTS idx_users_active_email ON users(email) WHERE is_active = true;
-CREATE INDEX IF NOT EXISTS idx_users_active_role ON users(role) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_users_active_user_type ON users(user_type) WHERE is_active = true;
 
 -- Add comments to table and columns
 COMMENT ON TABLE users IS 'User accounts for the Tachlit application';
 COMMENT ON COLUMN users.id IS 'Primary key, auto-incrementing user ID';
 COMMENT ON COLUMN users.email IS 'Unique email address for user login';
 COMMENT ON COLUMN users.password_hash IS 'Bcrypt hashed password';
-COMMENT ON COLUMN users.first_name IS 'User first name';
-COMMENT ON COLUMN users.last_name IS 'User last name';
+COMMENT ON COLUMN users.name IS 'User full name';
 COMMENT ON COLUMN users.phone IS 'Optional phone number';
-COMMENT ON COLUMN users.role IS 'User role: user or admin';
+COMMENT ON COLUMN users.city IS 'User city';
+COMMENT ON COLUMN users.user_type IS 'User type: LEARN_ASKER, LEARN_GIVER, OFFICE_VOLUNTEER, FOOD_VOLUNTEER, SUPERVISOR';
 COMMENT ON COLUMN users.is_active IS 'Whether the user account is active';
 COMMENT ON COLUMN users.created_at IS 'Account creation timestamp';
 COMMENT ON COLUMN users.updated_at IS 'Last update timestamp';
@@ -104,9 +160,10 @@ ORDER BY ordinal_position;
 SELECT 
     id,
     email,
-    first_name,
-    last_name,
-    role,
+    name,
+    phone,
+    city,
+    user_type,
     is_active,
     created_at
 FROM users

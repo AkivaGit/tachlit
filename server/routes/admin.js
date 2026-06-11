@@ -80,7 +80,7 @@ router.get('/users/:id', validateUserId, async (req, res) => {
 router.put('/users/:id', validateUserId, validateUserUpdate, async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, phone, role, is_active } = req.body;
+    const { name, phone, city, userType, is_active } = req.body;
 
     const user = await User.findById(id);
     if (!user) {
@@ -90,12 +90,12 @@ router.put('/users/:id', validateUserId, validateUserUpdate, async (req, res) =>
       });
     }
 
-    // Prevent admin from changing their own role or status
+    // Prevent admin from changing their own user type or status
     if (user.id === req.user.id) {
-      if (role !== undefined && role !== user.role) {
+      if (userType !== undefined && userType !== user.user_type) {
         return res.status(400).json({
           success: false,
-          message: 'Cannot change your own role'
+          message: 'Cannot change your own user type'
         });
       }
       if (is_active !== undefined && !is_active) {
@@ -107,10 +107,10 @@ router.put('/users/:id', validateUserId, validateUserUpdate, async (req, res) =>
     }
 
     const updateData = {};
-    if (firstName !== undefined) updateData.first_name = firstName;
-    if (lastName !== undefined) updateData.last_name = lastName;
+    if (name !== undefined) updateData.name = name;
     if (phone !== undefined) updateData.phone = phone;
-    if (role !== undefined) updateData.role = role;
+    if (city !== undefined) updateData.city = city;
+    if (userType !== undefined) updateData.user_type = userType;
     if (is_active !== undefined) updateData.is_active = is_active;
 
     if (Object.keys(updateData).length === 0) {
