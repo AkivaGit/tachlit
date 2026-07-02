@@ -11,7 +11,7 @@
         android:layout_height="0dp"
         android:contentDescription="@string/app_logo"
         android:scaleType="centerInside"
-        android:src="@drawable/tachlit_logo2"
+        android:src="@drawable/tachlit_logo4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

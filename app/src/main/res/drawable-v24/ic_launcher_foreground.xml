@@ -3,6 +3,6 @@
     <item
         android:width="72dp"
         android:height="72dp"
-        android:drawable="@drawable/tachlit_logo5"
+        android:drawable="@drawable/tachlit_logo1"
         android:gravity="center" />
 </layer-list>

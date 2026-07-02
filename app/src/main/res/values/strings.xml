@@ -19,8 +19,10 @@
     <string name="food_volunteer_title">אני רוצה להתנדב</string>
     <string name="food_volunteer_description">הירשם כדי להתנדב לאריזת חבילות מזון</string>
 
-    <string name="supervisor_title">רכז</string>
-    <string name="supervisor_description">כניסה לרכזים</string>
+    <string name="supervisor_title">מנהל</string>
+    <string name="supervisor_description">כניסה למנהלים</string>
+    <string name="group_coordinator_title">רכזי קבוצות</string>
+    <string name="group_coordinator_description">הירשם כרכז קבוצה</string>
 
     <!-- Common -->
     <string name="name">שם</string>
@@ -52,6 +54,12 @@
     <string name="available_schedule">לוח זמנים פנוי</string>
     <string name="max_students">מספר תלמידים מקסימלי</string>
     <string name="teaching_style">סגנון הוראה</string>
+    <string name="group_name">שם הקבוצה</string>
+    <string name="group_type">סוג הקבוצה</string>
+    <string name="number_of_participants">מספר משתתפים</string>
+    <string name="youth">נוער</string>
+    <string name="adult">מבוגר</string>
+    <string name="tourist">תיירים</string>
 
     <!-- Dashboard -->
     <string name="welcome_back">ברוך שובך</string>
@@ -80,11 +88,12 @@
     <string name="please_fill_all_fields">אנא מלא את כל השדות הנדרשים</string>
 
     <!-- Supervisor Login -->
-    <string name="supervisor_password">סיסמת רכז</string>
-    <string name="invalid_supervisor_password">סיסמת רכז שגויה</string>
+    <string name="supervisor_password">סיסמת מנהל</string>
+    <string name="invalid_supervisor_password">סיסמת מנהל שגויה</string>
 
     <!-- Section Headers -->
     <string name="personal_information">מידע אישי</string>
+    <string name="group_information">מידע על הקבוצה</string>
     <string name="learning_information">מידע לימודים</string>
 
     <!-- Arrays -->
@@ -92,5 +101,11 @@
         <item>@string/experience_beginner</item>
         <item>@string/experience_intermediate</item>
         <item>@string/experience_advanced</item>
+    </string-array>
+
+    <string-array name="group_types">
+        <item>@string/youth</item>
+        <item>@string/adult</item>
+        <item>@string/tourist</item>
     </string-array>
 </resources>

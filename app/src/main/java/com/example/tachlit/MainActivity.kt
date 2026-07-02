@@ -36,6 +36,10 @@ class MainActivity : AppCompatActivity() {
             handleRoleSelection(UserType.FOOD_VOLUNTEER)
         }
 
+        findViewById<CardView>(R.id.cardGroupCoordinator).setOnClickListener {
+            handleRoleSelection(UserType.GROUP_COORDINATOR)
+        }
+
         findViewById<CardView>(R.id.cardSupervisor).setOnClickListener {
             // TODO: Navigate to Supervisor login
             handleRoleSelection(UserType.SUPERVISOR)
@@ -62,6 +66,10 @@ class MainActivity : AppCompatActivity() {
             }
             UserType.SUPERVISOR -> {
                 val intent = Intent(this, SupervisorActivity::class.java)
+                startActivity(intent)
+            }
+            UserType.GROUP_COORDINATOR -> {
+                val intent = Intent(this, GroupCoordinatorActivity::class.java)
                 startActivity(intent)
             }
         }
