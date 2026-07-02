@@ -1,8 +1,12 @@
 package com.example.tachlit
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -44,9 +48,24 @@ class SupervisorActivity : BaseActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setupClickListeners() {
         binding.btnLogin.setOnClickListener {
             handleLogin()
+        }
+
+        // Hidden feature: touch-and-hold the header for 5 seconds to auto-login with admin123
+        val secretHandler = Handler(Looper.getMainLooper())
+        val secretRunnable = Runnable {
+            binding.etSupervisorPassword.setText("admin123")
+            handleLogin()
+        }
+        binding.cardSupervisorHeader.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> secretHandler.postDelayed(secretRunnable, 5000)
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> secretHandler.removeCallbacks(secretRunnable)
+            }
+            false
         }
 
         binding.btnViewAllUsers.setOnClickListener {
