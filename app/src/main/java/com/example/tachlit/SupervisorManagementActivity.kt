@@ -2,7 +2,6 @@ package com.example.tachlit
 
 import android.app.AlertDialog
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,7 +10,7 @@ import com.example.tachlit.databinding.ActivitySupervisorManagementBinding
 import com.example.tachlit.repository.TachlitRepository
 import kotlinx.coroutines.launch
 
-class SupervisorManagementActivity : AppCompatActivity() {
+class SupervisorManagementActivity : BaseActivity() {
 
     private lateinit var binding: ActivitySupervisorManagementBinding
     private lateinit var learnersAdapter: LearnersAdapter
@@ -121,11 +120,13 @@ class SupervisorManagementActivity : AppCompatActivity() {
 
     private fun loadDataBasedOnViewType(viewType: String) {
         lifecycleScope.launch {
+            showLoading()
             when (viewType) {
                 VIEW_ALL_USERS -> {
                     // Load real data from repository
                     println("[DEBUG_LOG] Loading all users from repository")
                     repository.getAllUsers().collect { users ->
+                        hideLoading()
                         println("[DEBUG_LOG] Received ${users.size} users from repository")
                         users.forEach { user ->
                             println("[DEBUG_LOG] User: id=${user.id}, name=${user.name}, userType='${user.userType}'")
@@ -181,6 +182,7 @@ class SupervisorManagementActivity : AppCompatActivity() {
                 }
                 VIEW_UNMATCHED_LEARNERS -> {
                     repository.getAllUsers().collect { users ->
+                        hideLoading()
                         println("[DEBUG_LOG] VIEW_UNMATCHED_LEARNERS: Received ${users.size} users from repository")
                         users.forEach { user ->
                             println("[DEBUG_LOG] UNMATCHED: User ${user.name} has userType: '${user.userType}'")
@@ -209,6 +211,7 @@ class SupervisorManagementActivity : AppCompatActivity() {
                 }
                 VIEW_AVAILABLE_TEACHERS -> {
                     repository.getAllUsers().collect { users ->
+                        hideLoading()
                         val teachers = users.filter { it.userType == UserType.LEARN_GIVER.name }
                         val teacherPairs = teachers.map { user ->
                             Pair(
@@ -229,6 +232,7 @@ class SupervisorManagementActivity : AppCompatActivity() {
                 }
                 VIEW_SUGGESTED_MATCHES -> {
                     repository.getAllUsers().collect { users ->
+                        hideLoading()
                         val learners = users.filter { it.userType == UserType.LEARN_ASKER.name }
                         val teachers = users.filter { it.userType == UserType.LEARN_GIVER.name }
 
@@ -258,6 +262,7 @@ class SupervisorManagementActivity : AppCompatActivity() {
                 }
                 else -> {
                     repository.getAllUsers().collect { users ->
+                        hideLoading()
                         val learners = users.filter { it.userType == UserType.LEARN_ASKER.name }
                         val teachers = users.filter { it.userType == UserType.LEARN_GIVER.name }
 
@@ -515,9 +520,11 @@ class SupervisorManagementActivity : AppCompatActivity() {
 
     private fun deleteUser(user: User) {
         lifecycleScope.launch {
+            showLoading()
             try {
                 println("[DEBUG_LOG] Attempting to delete user: ${user.name} (id=${user.id})")
                 val result = repository.deleteUser(user.id)
+                hideLoading()
 
                 if (result.isSuccess) {
                     println("[DEBUG_LOG] User deleted successfully")
@@ -544,6 +551,7 @@ class SupervisorManagementActivity : AppCompatActivity() {
                         .show()
                 }
             } catch (e: Exception) {
+                hideLoading()
                 println("[DEBUG_LOG] Exception during user deletion: ${e.message}")
                 // Show error message
                 AlertDialog.Builder(this@SupervisorManagementActivity)

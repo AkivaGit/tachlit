@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.example.tachlit.data.TachlitDatabase
@@ -14,7 +13,7 @@ import com.example.tachlit.databinding.ActivitySupervisorBinding
 import com.example.tachlit.repository.TachlitRepository
 import kotlinx.coroutines.launch
 
-class SupervisorActivity : AppCompatActivity() {
+class SupervisorActivity : BaseActivity() {
 
     private lateinit var binding: ActivitySupervisorBinding
     private lateinit var repository: TachlitRepository
@@ -86,8 +85,10 @@ class SupervisorActivity : AppCompatActivity() {
 
         // Authenticate with server
         lifecycleScope.launch {
+            showLoading()
             try {
                 val result = repository.loginSupervisor(supervisorEmail, enteredPassword)
+                hideLoading()
                 if (result.isSuccess) {
                     // Login successful
                     hideKeyboard()
@@ -100,6 +101,7 @@ class SupervisorActivity : AppCompatActivity() {
                     Toast.makeText(this@SupervisorActivity, "Login failed", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
+                hideLoading()
                 binding.etSupervisorPassword.error = "Login error: ${e.message}"
                 Toast.makeText(this@SupervisorActivity, "Login error: ${e.message}", Toast.LENGTH_LONG).show()
             }
@@ -114,8 +116,10 @@ class SupervisorActivity : AppCompatActivity() {
     private fun loadStatistics() {
         // Load real statistics from server
         lifecycleScope.launch {
+            showLoading()
             try {
                 val result = repository.getStatistics()
+                hideLoading()
                 if (result.isSuccess) {
                     val stats = result.getOrNull()!!
 
@@ -126,6 +130,7 @@ class SupervisorActivity : AppCompatActivity() {
 
                     println("[DEBUG_LOG] Statistics loaded - Learners: ${stats.learnAskers}, Teachers: ${stats.learnGivers}, Pairings: ${stats.totalPairings}")
                 } else {
+                    hideLoading()
                     // Fallback to default values if server request fails
                     binding.tvLearnersCount.text = "0"
                     binding.tvTeachersCount.text = "0"
@@ -135,6 +140,7 @@ class SupervisorActivity : AppCompatActivity() {
                     println("[DEBUG_LOG] Failed to load statistics: ${result.exceptionOrNull()?.message}")
                 }
             } catch (e: Exception) {
+                hideLoading()
                 // Fallback to default values if there's an error
                 binding.tvLearnersCount.text = "0"
                 binding.tvTeachersCount.text = "0"

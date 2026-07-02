@@ -2,7 +2,6 @@ package com.example.tachlit
 
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.example.tachlit.data.*
@@ -10,7 +9,7 @@ import com.example.tachlit.databinding.ActivityLearnAskerBinding
 import com.example.tachlit.repository.TachlitRepository
 import kotlinx.coroutines.launch
 
-class LearnAskerActivity : AppCompatActivity() {
+class LearnAskerActivity : BaseActivity() {
 
     private lateinit var binding: ActivityLearnAskerBinding
     private lateinit var repository: TachlitRepository
@@ -53,6 +52,7 @@ class LearnAskerActivity : AppCompatActivity() {
         // Validate input fields
         if (validateInput()) {
             lifecycleScope.launch {
+                showLoading()
                 val user = User(
                     name = binding.etName.text.toString().trim(),
                     familyName = binding.etFamilyName.text.toString().trim(),
@@ -64,6 +64,7 @@ class LearnAskerActivity : AppCompatActivity() {
                 )
 
                 val result = repository.registerUser(user)
+                hideLoading()
                 if (result.isSuccess) {
                     val registeredUser = result.getOrNull()!!
 

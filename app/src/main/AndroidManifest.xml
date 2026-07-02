@@ -18,6 +18,7 @@
         <activity
             android:name=".SplashActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Tachlit.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,41 +29,49 @@
         <activity
             android:name=".MainActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Tachlit.NoActionBar" />
 
         <activity
             android:name=".LearnAskerActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
 
         <activity
             android:name=".LearnGiverActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
 
         <activity
             android:name=".OfficeVolunteerActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
 
         <activity
             android:name=".FoodVolunteerActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
 
         <activity
             android:name=".SupervisorActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
 
         <activity
             android:name=".GroupCoordinatorActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
 
         <activity
             android:name=".SupervisorManagementActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:parentActivityName=".SupervisorActivity" />
 
     </application>

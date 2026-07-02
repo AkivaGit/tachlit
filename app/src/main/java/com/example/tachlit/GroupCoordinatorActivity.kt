@@ -3,7 +3,6 @@ package com.example.tachlit
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.example.tachlit.data.*
@@ -11,7 +10,7 @@ import com.example.tachlit.databinding.ActivityGroupCoordinatorBinding
 import com.example.tachlit.repository.TachlitRepository
 import kotlinx.coroutines.launch
 
-class GroupCoordinatorActivity : AppCompatActivity() {
+class GroupCoordinatorActivity : BaseActivity() {
 
     private lateinit var binding: ActivityGroupCoordinatorBinding
     private lateinit var repository: TachlitRepository
@@ -48,11 +47,16 @@ class GroupCoordinatorActivity : AppCompatActivity() {
         binding.btnRegister.setOnClickListener {
             registerGroupCoordinator()
         }
+
+        binding.btnCancel.setOnClickListener {
+            finish()
+        }
     }
 
     private fun registerGroupCoordinator() {
         if (validateInput()) {
             lifecycleScope.launch {
+                showLoading()
                 val user = User(
                     name = binding.etName.text.toString().trim(),
                     familyName = binding.etFamilyName.text.toString().trim(),
@@ -64,6 +68,7 @@ class GroupCoordinatorActivity : AppCompatActivity() {
                 )
 
                 val result = repository.registerUser(user)
+                hideLoading()
                 if (result.isSuccess) {
                     Toast.makeText(this@GroupCoordinatorActivity, getString(R.string.registration_successful), Toast.LENGTH_SHORT).show()
                     finish()
