@@ -521,6 +521,9 @@ class SupervisorManagementActivity : AppCompatActivity() {
 
                 if (result.isSuccess) {
                     println("[DEBUG_LOG] User deleted successfully")
+                    // Set result to indicate that data has changed
+                    setResult(RESULT_OK)
+
                     // Show success message
                     AlertDialog.Builder(this@SupervisorManagementActivity)
                         .setTitle("הצלחה")

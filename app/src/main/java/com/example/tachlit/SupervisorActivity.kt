@@ -152,7 +152,7 @@ class SupervisorActivity : AppCompatActivity() {
         intent.putExtra(SupervisorManagementActivity.EXTRA_VIEW_TYPE, SupervisorManagementActivity.VIEW_ALL_USERS)
         // Pass the supervisor token so the new activity can access the API
         intent.putExtra("supervisor_token", repository.getSupervisorToken())
-        startActivity(intent)
+        startActivityForResult(intent, REQUEST_CODE_MANAGEMENT)
     }
 
     private fun handleViewUnmatchedLearners() {
@@ -161,7 +161,7 @@ class SupervisorActivity : AppCompatActivity() {
         intent.putExtra(SupervisorManagementActivity.EXTRA_VIEW_TYPE, SupervisorManagementActivity.VIEW_UNMATCHED_LEARNERS)
         // Pass the supervisor token so the new activity can access the API
         intent.putExtra("supervisor_token", repository.getSupervisorToken())
-        startActivity(intent)
+        startActivityForResult(intent, REQUEST_CODE_MANAGEMENT)
     }
 
     private fun handleViewAvailableTeachers() {
@@ -170,7 +170,7 @@ class SupervisorActivity : AppCompatActivity() {
         intent.putExtra(SupervisorManagementActivity.EXTRA_VIEW_TYPE, SupervisorManagementActivity.VIEW_AVAILABLE_TEACHERS)
         // Pass the supervisor token so the new activity can access the API
         intent.putExtra("supervisor_token", repository.getSupervisorToken())
-        startActivity(intent)
+        startActivityForResult(intent, REQUEST_CODE_MANAGEMENT)
     }
 
     private fun handleSuggestedMatches() {
@@ -179,7 +179,7 @@ class SupervisorActivity : AppCompatActivity() {
         intent.putExtra(SupervisorManagementActivity.EXTRA_VIEW_TYPE, SupervisorManagementActivity.VIEW_SUGGESTED_MATCHES)
         // Pass the supervisor token so the new activity can access the API
         intent.putExtra("supervisor_token", repository.getSupervisorToken())
-        startActivity(intent)
+        startActivityForResult(intent, REQUEST_CODE_MANAGEMENT)
     }
 
     private fun handleApplyFilter() {
@@ -198,9 +198,29 @@ class SupervisorActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Refresh statistics when returning to this activity
+        if (binding.layoutManagement.visibility == View.VISIBLE) {
+            loadStatistics()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_MANAGEMENT && resultCode == RESULT_OK) {
+            // Refresh statistics when returning from management activity
+            loadStatistics()
+        }
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         finish()
         return true
+    }
+
+    companion object {
+        private const val REQUEST_CODE_MANAGEMENT = 1001
     }
 
     override fun onBackPressed() {
