@@ -15,6 +15,10 @@ class SupervisorManagementActivity : BaseActivity() {
     private lateinit var binding: ActivitySupervisorManagementBinding
     private lateinit var learnersAdapter: LearnersAdapter
     private lateinit var teachersAdapter: TeachersAdapter
+    private lateinit var officeVolunteersAdapter: GenericUsersAdapter
+    private lateinit var foodVolunteersAdapter: GenericUsersAdapter
+    private lateinit var supervisorsAdapter: GenericUsersAdapter
+    private lateinit var groupCoordinatorsAdapter: GenericUsersAdapter
     private lateinit var repository: TachlitRepository
 
     companion object {
@@ -95,6 +99,26 @@ class SupervisorManagementActivity : BaseActivity() {
             }
         )
 
+        officeVolunteersAdapter = GenericUsersAdapter(
+            onUserClick = { user -> showGenericUserDetails(user) },
+            onUserLongClick = { user -> showDeleteUserConfirmation(user) }
+        )
+
+        foodVolunteersAdapter = GenericUsersAdapter(
+            onUserClick = { user -> showGenericUserDetails(user) },
+            onUserLongClick = { user -> showDeleteUserConfirmation(user) }
+        )
+
+        supervisorsAdapter = GenericUsersAdapter(
+            onUserClick = { user -> showGenericUserDetails(user) },
+            onUserLongClick = { user -> showDeleteUserConfirmation(user) }
+        )
+
+        groupCoordinatorsAdapter = GenericUsersAdapter(
+            onUserClick = { user -> showGenericUserDetails(user) },
+            onUserLongClick = { user -> showDeleteUserConfirmation(user) }
+        )
+
         binding.recyclerViewLearners.apply {
             layoutManager = LinearLayoutManager(this@SupervisorManagementActivity)
             adapter = learnersAdapter
@@ -106,6 +130,30 @@ class SupervisorManagementActivity : BaseActivity() {
             adapter = teachersAdapter
             setHasFixedSize(false)
         }
+
+        binding.recyclerViewOfficeVolunteers.apply {
+            layoutManager = LinearLayoutManager(this@SupervisorManagementActivity)
+            adapter = officeVolunteersAdapter
+            setHasFixedSize(false)
+        }
+
+        binding.recyclerViewFoodVolunteers.apply {
+            layoutManager = LinearLayoutManager(this@SupervisorManagementActivity)
+            adapter = foodVolunteersAdapter
+            setHasFixedSize(false)
+        }
+
+        binding.recyclerViewSupervisors.apply {
+            layoutManager = LinearLayoutManager(this@SupervisorManagementActivity)
+            adapter = supervisorsAdapter
+            setHasFixedSize(false)
+        }
+
+        binding.recyclerViewGroupCoordinators.apply {
+            layoutManager = LinearLayoutManager(this@SupervisorManagementActivity)
+            adapter = groupCoordinatorsAdapter
+            setHasFixedSize(false)
+        }
     }
 
     private fun forceRecyclerViewMeasurement() {
@@ -115,6 +163,18 @@ class SupervisorManagementActivity : BaseActivity() {
         }
         binding.recyclerViewTeachers.post {
             binding.recyclerViewTeachers.requestLayout()
+        }
+        binding.recyclerViewOfficeVolunteers.post {
+            binding.recyclerViewOfficeVolunteers.requestLayout()
+        }
+        binding.recyclerViewFoodVolunteers.post {
+            binding.recyclerViewFoodVolunteers.requestLayout()
+        }
+        binding.recyclerViewSupervisors.post {
+            binding.recyclerViewSupervisors.requestLayout()
+        }
+        binding.recyclerViewGroupCoordinators.post {
+            binding.recyclerViewGroupCoordinators.requestLayout()
         }
     }
 
@@ -151,9 +211,12 @@ class SupervisorManagementActivity : BaseActivity() {
                             println("[DEBUG_LOG] User ${it.name} userType '${it.userType}' matches LEARN_GIVER: $matches")
                             matches
                         }
+                        val officeVolunteers = users.filter { it.userType == UserType.OFFICE_VOLUNTEER.name }
+                        val foodVolunteers = users.filter { it.userType == UserType.FOOD_VOLUNTEER.name }
+                        val supervisors = users.filter { it.userType == UserType.SUPERVISOR.name }
+                        val groupCoordinators = users.filter { it.userType == UserType.GROUP_COORDINATOR.name }
 
-                        println("[DEBUG_LOG] Filtered learners: ${learners.size}, teachers: ${teachers.size}")
-                        println("[DEBUG_LOG] Looking for userType: '${UserType.LEARN_ASKER.name}' and '${UserType.LEARN_GIVER.name}'")
+                        println("[DEBUG_LOG] Filtered: learners=${learners.size}, teachers=${teachers.size}, officeVol=${officeVolunteers.size}, foodVol=${foodVolunteers.size}, supervisors=${supervisors.size}, groupCoord=${groupCoordinators.size}")
 
                         // For now, create simple pairs with empty LearnAsker/LearnGiver objects
                         val learnerPairs = learners.map { user ->
@@ -172,11 +235,16 @@ class SupervisorManagementActivity : BaseActivity() {
 
                         learnersAdapter.submitList(learnerPairs)
                         teachersAdapter.submitList(teacherPairs)
+                        officeVolunteersAdapter.submitList(officeVolunteers)
+                        foodVolunteersAdapter.submitList(foodVolunteers)
+                        supervisorsAdapter.submitList(supervisors)
+                        groupCoordinatorsAdapter.submitList(groupCoordinators)
                         binding.tvLearnersCount.text = learnerPairs.size.toString()
                         binding.tvTeachersCount.text = teacherPairs.size.toString()
                         binding.tvPairingsCount.text = "0"
 
                         updateSectionTitles("כל הלומדים", "כל המורים")
+                        updateAllSectionVisibility(officeVolunteers.isNotEmpty(), foodVolunteers.isNotEmpty(), supervisors.isNotEmpty(), groupCoordinators.isNotEmpty())
                         forceRecyclerViewMeasurement()
                     }
                 }
@@ -201,11 +269,16 @@ class SupervisorManagementActivity : BaseActivity() {
 
                         learnersAdapter.submitList(learnerPairs)
                         teachersAdapter.submitList(emptyList())
+                        officeVolunteersAdapter.submitList(emptyList())
+                        foodVolunteersAdapter.submitList(emptyList())
+                        supervisorsAdapter.submitList(emptyList())
+                        groupCoordinatorsAdapter.submitList(emptyList())
                         binding.tvLearnersCount.text = learnerPairs.size.toString()
                         binding.tvTeachersCount.text = "0"
                         binding.tvPairingsCount.text = "0"
 
                         updateSectionTitles("לומדים שלא שובצו", "")
+                        updateAllSectionVisibility(false, false, false, false)
                         forceRecyclerViewMeasurement()
                     }
                 }
@@ -222,11 +295,16 @@ class SupervisorManagementActivity : BaseActivity() {
 
                         learnersAdapter.submitList(emptyList())
                         teachersAdapter.submitList(teacherPairs)
+                        officeVolunteersAdapter.submitList(emptyList())
+                        foodVolunteersAdapter.submitList(emptyList())
+                        supervisorsAdapter.submitList(emptyList())
+                        groupCoordinatorsAdapter.submitList(emptyList())
                         binding.tvLearnersCount.text = "0"
                         binding.tvTeachersCount.text = teacherPairs.size.toString()
                         binding.tvPairingsCount.text = "0"
 
                         updateSectionTitles("", "מורים זמינים")
+                        updateAllSectionVisibility(false, false, false, false)
                         forceRecyclerViewMeasurement()
                     }
                 }
@@ -252,11 +330,16 @@ class SupervisorManagementActivity : BaseActivity() {
 
                         learnersAdapter.submitList(learnerPairs)
                         teachersAdapter.submitList(teacherPairs)
+                        officeVolunteersAdapter.submitList(emptyList())
+                        foodVolunteersAdapter.submitList(emptyList())
+                        supervisorsAdapter.submitList(emptyList())
+                        groupCoordinatorsAdapter.submitList(emptyList())
                         binding.tvLearnersCount.text = learnerPairs.size.toString()
                         binding.tvTeachersCount.text = teacherPairs.size.toString()
                         binding.tvPairingsCount.text = "0"
 
                         updateSectionTitles("לומדים לשיבוץ", "מורים זמינים לשיבוץ")
+                        updateAllSectionVisibility(false, false, false, false)
                         forceRecyclerViewMeasurement()
                     }
                 }
@@ -282,11 +365,16 @@ class SupervisorManagementActivity : BaseActivity() {
 
                         learnersAdapter.submitList(learnerPairs)
                         teachersAdapter.submitList(teacherPairs)
+                        officeVolunteersAdapter.submitList(emptyList())
+                        foodVolunteersAdapter.submitList(emptyList())
+                        supervisorsAdapter.submitList(emptyList())
+                        groupCoordinatorsAdapter.submitList(emptyList())
                         binding.tvLearnersCount.text = learnerPairs.size.toString()
                         binding.tvTeachersCount.text = teacherPairs.size.toString()
                         binding.tvPairingsCount.text = "0"
 
                         updateSectionTitles("כל הלומדים", "כל המורים")
+                        updateAllSectionVisibility(false, false, false, false)
                         forceRecyclerViewMeasurement()
                     }
                 }
@@ -298,18 +386,49 @@ class SupervisorManagementActivity : BaseActivity() {
         // Update learners section
         if (learnersTitle.isNotEmpty()) {
             binding.tvLearnersTitle.text = learnersTitle
-            findViewById<androidx.cardview.widget.CardView>(R.id.cardViewLearners)?.visibility = android.view.View.VISIBLE
+            binding.cardViewLearners.visibility = android.view.View.VISIBLE
         } else {
-            findViewById<androidx.cardview.widget.CardView>(R.id.cardViewLearners)?.visibility = android.view.View.GONE
+            binding.cardViewLearners.visibility = android.view.View.GONE
         }
 
         // Update teachers section
         if (teachersTitle.isNotEmpty()) {
             binding.tvTeachersTitle.text = teachersTitle
-            findViewById<androidx.cardview.widget.CardView>(R.id.cardViewTeachers)?.visibility = android.view.View.VISIBLE
+            binding.cardViewTeachers.visibility = android.view.View.VISIBLE
         } else {
-            findViewById<androidx.cardview.widget.CardView>(R.id.cardViewTeachers)?.visibility = android.view.View.GONE
+            binding.cardViewTeachers.visibility = android.view.View.GONE
         }
+    }
+
+    private fun updateAllSectionVisibility(
+        showOfficeVolunteers: Boolean,
+        showFoodVolunteers: Boolean,
+        showSupervisors: Boolean,
+        showGroupCoordinators: Boolean
+    ) {
+        binding.cardViewOfficeVolunteers.visibility =
+            if (showOfficeVolunteers) android.view.View.VISIBLE else android.view.View.GONE
+        binding.cardViewFoodVolunteers.visibility =
+            if (showFoodVolunteers) android.view.View.VISIBLE else android.view.View.GONE
+        binding.cardViewSupervisors.visibility =
+            if (showSupervisors) android.view.View.VISIBLE else android.view.View.GONE
+        binding.cardViewGroupCoordinators.visibility =
+            if (showGroupCoordinators) android.view.View.VISIBLE else android.view.View.GONE
+    }
+
+    private fun showGenericUserDetails(user: User) {
+        val message = """
+            שם: ${user.name} ${user.familyName}
+            אימייל: ${user.email}
+            עיר: ${user.city}
+            טלפון: ${user.phone}
+        """.trimIndent()
+
+        AlertDialog.Builder(this)
+            .setTitle("פרטי המשתמש")
+            .setMessage(message)
+            .setNegativeButton("סגור", null)
+            .show()
     }
 
     private fun onLearnerSelected(learner: LearnAsker, user: User) {

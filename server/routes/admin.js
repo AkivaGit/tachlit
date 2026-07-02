@@ -268,6 +268,7 @@ router.get('/stats', async (req, res) => {
     const officeVolunteersResult = await query('SELECT COUNT(*) as count FROM users WHERE user_type = \'OFFICE_VOLUNTEER\' AND is_active = true');
     const foodVolunteersResult = await query('SELECT COUNT(*) as count FROM users WHERE user_type = \'FOOD_VOLUNTEER\' AND is_active = true');
     const supervisorsResult = await query('SELECT COUNT(*) as count FROM users WHERE user_type = \'SUPERVISOR\' AND is_active = true');
+    const groupCoordinatorsResult = await query('SELECT COUNT(*) as count FROM users WHERE user_type = \'GROUP_COORDINATOR\' AND is_active = true');
 
     // Get unmatched learners (those without assigned teacher)
     const unmatchedLearnersResult = await query(
@@ -299,6 +300,7 @@ router.get('/stats', async (req, res) => {
       officeVolunteers: parseInt(officeVolunteersResult.rows[0].count),
       foodVolunteers: parseInt(foodVolunteersResult.rows[0].count),
       supervisors: parseInt(supervisorsResult.rows[0].count),
+      groupCoordinators: parseInt(groupCoordinatorsResult.rows[0].count),
       unmatchedLearners: parseInt(unmatchedLearnersResult.rows[0].count),
       availableTeachers: parseInt(availableTeachersResult.rows[0].count),
       totalPairings: parseInt(totalPairingsResult.rows[0].count),

@@ -32,9 +32,15 @@
     <color name="card_learn_asker">#FFE3F2FD</color>        <!-- Light blue -->
     <color name="card_learn_giver">#FFE8F5E8</color>        <!-- Light green -->
     <color name="card_supervisor">#FFFCE4EC</color>         <!-- Light pink -->
+    <color name="card_office_volunteer">#FFFFF8E1</color>   <!-- Light amber -->
+    <color name="card_food_volunteer">#FFF3E5F5</color>     <!-- Light purple -->
+    <color name="card_group_coordinator">#FFE0F7FA</color>  <!-- Light cyan -->
     <color name="text_on_light_blue">#FF0D47A1</color>      <!-- Dark blue -->
     <color name="text_on_light_green">#FF1B5E20</color>     <!-- Dark green -->
     <color name="text_on_light_pink">#FF880E4F</color>      <!-- Dark pink -->
+    <color name="text_on_light_amber">#FFE65100</color>     <!-- Dark amber -->
+    <color name="text_on_light_purple">#FF4A148C</color>    <!-- Dark purple -->
+    <color name="text_on_light_cyan">#FF006064</color>      <!-- Dark cyan -->
     <color name="text_secondary_blue">#FF1565C0</color>     <!-- Medium blue -->
     <color name="text_secondary_green">#FF2E7D32</color>    <!-- Medium green -->
     <color name="text_secondary_pink">#FFC2185B</color>     <!-- Medium pink -->

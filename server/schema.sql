@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     family_name VARCHAR(200) NOT NULL,
     phone VARCHAR(20),
     city VARCHAR(100),
-    user_type VARCHAR(30) DEFAULT 'LEARN_ASKER' CHECK (user_type IN ('LEARN_ASKER', 'LEARN_GIVER', 'OFFICE_VOLUNTEER', 'FOOD_VOLUNTEER', 'SUPERVISOR')),
+    user_type VARCHAR(30) DEFAULT 'LEARN_ASKER' CHECK (user_type IN ('LEARN_ASKER', 'LEARN_GIVER', 'OFFICE_VOLUNTEER', 'FOOD_VOLUNTEER', 'SUPERVISOR', 'GROUP_COORDINATOR')),
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -89,6 +89,18 @@ CREATE TABLE IF NOT EXISTS food_volunteers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create GroupCoordinator table
+CREATE TABLE IF NOT EXISTS group_coordinators (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    assigned_groups TEXT,
+    coordination_area TEXT,
+    experience TEXT,
+    availability TEXT,
+    additional_notes TEXT DEFAULT '',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create Pairing table
 CREATE TABLE IF NOT EXISTS pairings (
     id SERIAL PRIMARY KEY,
@@ -108,6 +120,7 @@ CREATE INDEX IF NOT EXISTS idx_learn_askers_user_id ON learn_askers(user_id);
 CREATE INDEX IF NOT EXISTS idx_learn_givers_user_id ON learn_givers(user_id);
 CREATE INDEX IF NOT EXISTS idx_office_volunteers_user_id ON office_volunteers(user_id);
 CREATE INDEX IF NOT EXISTS idx_food_volunteers_user_id ON food_volunteers(user_id);
+CREATE INDEX IF NOT EXISTS idx_group_coordinators_user_id ON group_coordinators(user_id);
 CREATE INDEX IF NOT EXISTS idx_pairings_learn_asker_id ON pairings(learn_asker_id);
 CREATE INDEX IF NOT EXISTS idx_pairings_learn_giver_id ON pairings(learn_giver_id);
 
@@ -145,7 +158,7 @@ COMMENT ON COLUMN users.name IS 'User first name';
 COMMENT ON COLUMN users.family_name IS 'User family name';
 COMMENT ON COLUMN users.phone IS 'Optional phone number';
 COMMENT ON COLUMN users.city IS 'User city';
-COMMENT ON COLUMN users.user_type IS 'User type: LEARN_ASKER, LEARN_GIVER, OFFICE_VOLUNTEER, FOOD_VOLUNTEER, SUPERVISOR';
+COMMENT ON COLUMN users.user_type IS 'User type: LEARN_ASKER, LEARN_GIVER, OFFICE_VOLUNTEER, FOOD_VOLUNTEER, SUPERVISOR, GROUP_COORDINATOR';
 COMMENT ON COLUMN users.is_active IS 'Whether the user account is active';
 COMMENT ON COLUMN users.created_at IS 'Account creation timestamp';
 COMMENT ON COLUMN users.updated_at IS 'Last update timestamp';

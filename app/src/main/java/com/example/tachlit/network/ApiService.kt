@@ -130,6 +130,7 @@ data class StatisticsData(
     val officeVolunteers: Int,
     val foodVolunteers: Int,
     val supervisors: Int,
+    val groupCoordinators: Int = 0,
     val unmatchedLearners: Int,
     val availableTeachers: Int,
     val totalPairings: Int,
