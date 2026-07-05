@@ -36,7 +36,9 @@ const initFirebase = () => {
 
     if (!credential) {
       const filePath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH
-        || path.join(__dirname, 'firebase-service-account.json');
+        || (fs.existsSync(path.join(__dirname, 'firebase-service-account.json'))
+            ? path.join(__dirname, 'firebase-service-account.json')
+            : path.join(__dirname, 'tachlit-2efd4-firebase-adminsdk-fbsvc-83eead7686.json'));
       if (fs.existsSync(filePath)) {
         credential = admin.credential.cert(require(filePath));
         console.log(`🔥 Firebase Admin: using service account file at ${filePath}`);
