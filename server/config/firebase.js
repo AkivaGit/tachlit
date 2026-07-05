@@ -35,19 +35,56 @@ const initFirebase = () => {
     }
 
     if (!credential) {
-      const filePath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH
-        || (fs.existsSync(path.join(__dirname, 'firebase-service-account.json'))
-            ? path.join(__dirname, 'firebase-service-account.json')
-            : path.join(__dirname, 'tachlit-2efd4-firebase-adminsdk-fbsvc-83eead7686.json'));
-      if (fs.existsSync(filePath)) {
-        credential = admin.credential.cert(require(filePath));
-        console.log(`🔥 Firebase Admin: using service account file at ${filePath}`);
+      // Try multiple file-based sources in order
+      const candidatePaths = [];
+
+      // 1) Explicit path via FIREBASE_SERVICE_ACCOUNT_PATH
+      if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
+        candidatePaths.push(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
+      }
+
+      // 2) Standard Google var: GOOGLE_APPLICATION_CREDENTIALS
+      if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+        candidatePaths.push(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+      }
+
+      // 3) Local default in this directory
+      candidatePaths.push(path.join(__dirname, 'firebase-service-account.json'));
+
+      // 4) The provided concrete filename you added to the repo
+      candidatePaths.push(path.join(__dirname, 'tachlit-2efd4-firebase-adminsdk-fbsvc-83eead7686.json'));
+
+      // 5) As a last resort, scan this folder for any *firebase*adminsdk*.json
+      try {
+        const files = fs.readdirSync(__dirname);
+        const guessed = files.find(f => /firebase.*adminsdk.*\.json$/i.test(f));
+        if (guessed) candidatePaths.push(path.join(__dirname, guessed));
+      } catch (_) {
+        // ignore
+      }
+
+      // Log environment for debugging (no secrets)
+      console.log('ℹ️ Firebase init: __dirname =', __dirname);
+      console.log('ℹ️ Firebase init: process.cwd() =', process.cwd());
+      console.log('ℹ️ Firebase init: checking credential paths (in order):');
+      candidatePaths.forEach((p, i) => console.log(`   [${i + 1}] ${p}`));
+
+      // Pick the first existing file
+      const filePath = candidatePaths.find(p => typeof p === 'string' && fs.existsSync(p));
+      if (filePath) {
+        try {
+          credential = admin.credential.cert(require(filePath));
+          console.log(`🔥 Firebase Admin: using service account file at ${filePath}`);
+        } catch (e) {
+          console.error('❌ Failed to load Firebase credential from file:', filePath, '-', e.message);
+        }
       }
     }
 
     if (!credential) {
       initError = new Error(
         'No Firebase credentials found. Set FIREBASE_SERVICE_ACCOUNT_JSON env var ' +
+        'or set FIREBASE_SERVICE_ACCOUNT_PATH/GOOGLE_APPLICATION_CREDENTIALS to a file path, ' +
         'or place server/config/firebase-service-account.json. ' +
         'Push notifications are DISABLED until this is provided.'
       );
