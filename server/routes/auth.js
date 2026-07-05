@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
 const { validateRegistration, validateLogin } = require('../middleware/validation');
+const { notifySupervisorsOnNewUser } = require('./notifications');
 
 const router = express.Router();
 
@@ -32,6 +33,18 @@ router.post('/register', validateRegistration, async (req, res) => {
 
     // Generate JWT token
     const token = generateToken(user.id);
+
+    // Fire-and-forget push notification to supervisors about the new user.
+    // Wrapped in a Promise.resolve so any error can never propagate to the response.
+    Promise.resolve()
+      .then(() => notifySupervisorsOnNewUser({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        family_name: user.family_name,
+        user_type: user.user_type
+      }))
+      .catch(err => console.error('notifySupervisorsOnNewUser failed:', err.message));
 
     // Return success response with token and user data
     res.status(201).json({

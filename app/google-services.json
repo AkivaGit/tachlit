@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "571337343153",
+    "project_id": "tachlit-2efd4",
+    "storage_bucket": "tachlit-2efd4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:571337343153:android:c12c260fa011a47966e290",
+        "android_client_info": {
+          "package_name": "com.example.tachlit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCY9Ra5t5AocFUUfFtDLvTAr4XsXLcjlc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,6 @@
 package com.example.tachlit
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
@@ -63,7 +64,7 @@ class OfficeVolunteerActivity : BaseActivity() {
                     userType = UserType.OFFICE_VOLUNTEER.name
                 )
 
-                val result = repository.registerUser(user)
+                val result = repository.registerUser(user, this@OfficeVolunteerActivity)
                 hideLoading()
                 if (result.isSuccess) {
                     val registeredUser = result.getOrNull()!!
@@ -81,6 +82,11 @@ class OfficeVolunteerActivity : BaseActivity() {
                     repository.insertOfficeVolunteer(officeVolunteer)
 
                     Toast.makeText(this@OfficeVolunteerActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
+                    startActivity(
+                        Intent(this@OfficeVolunteerActivity, RoleHomeActivity::class.java)
+                            .putExtra(RoleHomeActivity.EXTRA_ROLE, UserType.OFFICE_VOLUNTEER.name)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    )
                     finish()
                 } else {
                     Toast.makeText(this@OfficeVolunteerActivity, "Registration failed: ${result.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()

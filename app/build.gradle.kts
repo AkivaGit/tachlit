@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.google.services)
     kotlin("kapt")
 }
 
@@ -83,6 +84,12 @@ dependencies {
 
     // ConstraintLayout
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+
+    // Firebase (Cloud Messaging for push notifications)
+    implementation(platform("com.google.firebase:firebase-bom:34.15.0"))
+    implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("com.google.android.gms:play-services-base:18.5.0")
+    implementation("com.google.firebase:firebase-analytics")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

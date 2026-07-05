@@ -13,8 +13,14 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.example.tachlit.data.TachlitDatabase
+import android.view.Menu
+import android.view.MenuItem
 import com.example.tachlit.databinding.ActivitySupervisorBinding
+import androidx.appcompat.app.AlertDialog
+import com.example.tachlit.data.UserType
+import com.example.tachlit.notifications.FcmTokenUploader
 import com.example.tachlit.repository.TachlitRepository
+import com.example.tachlit.session.SessionManager
 import kotlinx.coroutines.launch
 
 class SupervisorActivity : BaseActivity() {
@@ -41,11 +47,43 @@ class SupervisorActivity : BaseActivity() {
 
         setupUI()
         setupClickListeners()
+
+        // Auto-login flow: if this activity was opened from the splash with an
+        // active supervisor session, log the supervisor in automatically.
+        if (intent.getBooleanExtra(EXTRA_AUTO_LOGIN, false) &&
+            SessionManager.getRole(this) == UserType.SUPERVISOR.name) {
+            binding.etSupervisorPassword.setText(supervisorPassword)
+            handleLogin()
+        }
     }
 
     private fun setupUI() {
         supportActionBar?.title = getString(R.string.supervisor_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Only show the "send push notification" entry after supervisor login
+        // (i.e. when the management section is visible / we have a token).
+        if (repository.getSupervisorToken() != null) {
+            menu.add(0, MENU_ID_SEND_PUSH, 0, R.string.supervisor_send_notification_button)
+                .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            menu.add(0, MENU_ID_LOGOUT, 1, R.string.logout)
+                .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        }
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == MENU_ID_SEND_PUSH) {
+            startActivity(Intent(this, SupervisorSendNotificationActivity::class.java))
+            return true
+        }
+        if (item.itemId == MENU_ID_LOGOUT) {
+            confirmLogout()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -113,6 +151,22 @@ class SupervisorActivity : BaseActivity() {
                     hideKeyboard()
                     showManagementSection()
                     loadStatistics()
+                    // Save auth token + upload FCM device token so this device
+                    // starts receiving supervisor push notifications.
+                    val jwt = result.getOrNull()
+                    if (!jwt.isNullOrBlank()) {
+                        FcmTokenUploader.saveAuthTokenAndUpload(applicationContext, jwt)
+                    }
+                    // Persist supervisor session so this device stays logged
+                    // in across app restarts.
+                    SessionManager.saveSession(
+                        this@SupervisorActivity,
+                        userId = -1L,
+                        name = getString(R.string.supervisor_title),
+                        role = UserType.SUPERVISOR.name
+                    )
+                    // Reveal the "send notification" menu item
+                    invalidateOptionsMenu()
                     Toast.makeText(this@SupervisorActivity, "Login successful", Toast.LENGTH_SHORT).show()
                 } else {
                     // Login failed
@@ -244,8 +298,26 @@ class SupervisorActivity : BaseActivity() {
         return true
     }
 
+    private fun confirmLogout() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.logout_confirm_title)
+            .setMessage(R.string.logout_confirm_message)
+            .setPositiveButton(R.string.yes) { _, _ ->
+                SessionManager.logout(this)
+                val i = Intent(this, MainActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                startActivity(i)
+                finish()
+            }
+            .setNegativeButton(R.string.no, null)
+            .show()
+    }
+
     companion object {
+        const val EXTRA_AUTO_LOGIN = "extra_auto_login"
         private const val REQUEST_CODE_MANAGEMENT = 1001
+        private const val MENU_ID_SEND_PUSH = 100
+        private const val MENU_ID_LOGOUT = 101
     }
 
     override fun onBackPressed() {

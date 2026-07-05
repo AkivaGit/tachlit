@@ -141,7 +141,7 @@ const initializeDatabase = async () => {
         family_name VARCHAR(200) NOT NULL,
         phone VARCHAR(20),
         city VARCHAR(100),
-        user_type VARCHAR(30) DEFAULT 'LEARN_ASKER' CHECK (user_type IN ('LEARN_ASKER', 'LEARN_GIVER', 'OFFICE_VOLUNTEER', 'FOOD_VOLUNTEER', 'SUPERVISOR')),
+        user_type VARCHAR(30) DEFAULT 'LEARN_ASKER' CHECK (user_type IN ('LEARN_ASKER', 'LEARN_GIVER', 'OFFICE_VOLUNTEER', 'FOOD_VOLUNTEER', 'SUPERVISOR', 'GROUP_COORDINATOR')),
         is_active BOOLEAN DEFAULT true,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -218,6 +218,21 @@ const initializeDatabase = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // Create DeviceToken table for FCM push notifications
+    await query(`
+      CREATE TABLE IF NOT EXISTS device_tokens (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        user_type VARCHAR(30) NOT NULL,
+        token TEXT NOT NULL UNIQUE,
+        platform VARCHAR(20) DEFAULT 'android',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await query('CREATE INDEX IF NOT EXISTS idx_device_tokens_user_id ON device_tokens(user_id)');
+    await query('CREATE INDEX IF NOT EXISTS idx_device_tokens_user_type ON device_tokens(user_type)');
 
     // Create Pairing table
     await query(`

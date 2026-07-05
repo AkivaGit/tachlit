@@ -1,8 +1,11 @@
 package com.example.tachlit.repository
 
+import android.content.Context
 import com.example.tachlit.data.*
 import com.example.tachlit.network.NetworkModule
 import com.example.tachlit.network.RegisterRequest
+import com.example.tachlit.notifications.FcmTokenUploader
+import com.example.tachlit.session.SessionManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -26,8 +29,11 @@ class TachlitRepository(
     fun getSupervisorToken(): String? {
         return supervisorToken
     }
-    // User operations - Remote first, local fallback
-    suspend fun registerUser(user: User): Result<User> {
+    // User operations - Remote first, local fallback.
+    // If [context] is supplied, the JWT returned by the server is saved and the
+    // device FCM token is uploaded so this device can receive push notifications
+    // (used by all "role" registration activities).
+    suspend fun registerUser(user: User, context: Context? = null): Result<User> {
         return try {
             val request = RegisterRequest(
                 email = user.email,
@@ -41,7 +47,14 @@ class TachlitRepository(
 
             val response = apiService.registerUser(request)
             if (response.isSuccessful && response.body()?.success == true) {
-                val userData = response.body()!!.user!!
+                val body = response.body()!!
+                val userData = body.user!!
+                // Save auth token & upload FCM device token so this user starts
+                // receiving pushes (and so the supervisor can send them pushes).
+                val jwt = body.token
+                if (context != null && !jwt.isNullOrBlank()) {
+                    FcmTokenUploader.saveAuthTokenAndUpload(context.applicationContext, jwt)
+                }
                 val registeredUser = User(
                     id = userData.id,
                     name = userData.name,
@@ -54,6 +67,16 @@ class TachlitRepository(
                 )
                 // Also save locally
                 userDao.insertUser(registeredUser)
+                // Persist the "logged in" session so the app remembers this
+                // user across restarts and lands them on their personal home.
+                if (context != null) {
+                    SessionManager.saveSession(
+                        context.applicationContext,
+                        userId = registeredUser.id,
+                        name = registeredUser.name,
+                        role = registeredUser.userType
+                    )
+                }
                 Result.success(registeredUser)
             } else {
                 Result.failure(Exception("Failed to register user: ${response.body()?.message ?: response.message()}"))
@@ -199,6 +222,33 @@ class TachlitRepository(
                 }
             } else {
                 Result.failure(Exception("No supervisor token available"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Push notification – supervisor-only: send a broadcast to a set of roles
+    suspend fun sendPushToRoles(
+        roles: List<String>,
+        title: String,
+        body: String
+    ): Result<com.example.tachlit.network.SendPushResponse> {
+        return try {
+            val token = supervisorToken
+                ?: return Result.failure(Exception("No supervisor token available"))
+            val response = apiService.sendPushToRole(
+                "Bearer $token",
+                com.example.tachlit.network.SendPushToRoleRequest(
+                    roles = roles,
+                    title = title,
+                    body = body
+                )
+            )
+            if (response.isSuccessful && response.body()?.success == true) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Failed to send push: ${response.body()?.message ?: response.message()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

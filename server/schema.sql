@@ -101,6 +101,19 @@ CREATE TABLE IF NOT EXISTS group_coordinators (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create device_tokens table for FCM push notifications
+CREATE TABLE IF NOT EXISTS device_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    user_type VARCHAR(30) NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    platform VARCHAR(20) DEFAULT 'android',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_device_tokens_user_id ON device_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_device_tokens_user_type ON device_tokens(user_type);
+
 -- Create Pairing table
 CREATE TABLE IF NOT EXISTS pairings (
     id SERIAL PRIMARY KEY,

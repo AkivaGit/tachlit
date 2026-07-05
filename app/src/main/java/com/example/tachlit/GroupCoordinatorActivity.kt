@@ -1,5 +1,6 @@
 package com.example.tachlit
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -67,10 +68,15 @@ class GroupCoordinatorActivity : BaseActivity() {
                     userType = UserType.GROUP_COORDINATOR.name
                 )
 
-                val result = repository.registerUser(user)
+                val result = repository.registerUser(user, this@GroupCoordinatorActivity)
                 hideLoading()
                 if (result.isSuccess) {
                     Toast.makeText(this@GroupCoordinatorActivity, getString(R.string.registration_successful), Toast.LENGTH_SHORT).show()
+                    startActivity(
+                        Intent(this@GroupCoordinatorActivity, RoleHomeActivity::class.java)
+                            .putExtra(RoleHomeActivity.EXTRA_ROLE, UserType.GROUP_COORDINATOR.name)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    )
                     finish()
                 } else {
                     Toast.makeText(this@GroupCoordinatorActivity, "Registration failed: ${result.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()

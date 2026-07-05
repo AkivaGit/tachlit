@@ -108,4 +108,33 @@
         <item>@string/adult</item>
         <item>@string/tourist</item>
     </string-array>
+
+    <!-- Push notifications -->
+    <string name="send_notification_title">Send push notification</string>
+    <string name="send_notification_hint_title">Notification title</string>
+    <string name="send_notification_hint_body">Notification message</string>
+    <string name="send_notification_select_roles">Send to roles</string>
+    <string name="send_notification_send">Send notification</string>
+    <string name="send_notification_missing_fields">Please fill in both title and message</string>
+    <string name="send_notification_no_role">Please select at least one role</string>
+    <string name="supervisor_send_notification_button">Send push notification</string>
+
+    <!-- Session / role home -->
+    <string name="logout">התנתק</string>
+    <string name="role_home_title">האזור האישי שלי</string>
+    <string name="role_home_greeting">שלום %1$s</string>
+    <string name="role_home_subtitle">זהו האזור האישי שלך באפליקציית תכלית.\nכאן תוכל לראות את הפעילויות שלך.</string>
+    <string name="role_home_activities_title">הפעילויות שלי</string>
+    <string name="role_home_activities_empty">אין לך עדיין פעילויות. בקרוב תוכל לראות כאן את השיעורים, ההתנדבויות והשידוכים שלך.</string>
+    <string name="role_home_role_label">התפקיד שלך: %1$s</string>
+    <string name="role_learn_asker">לומד</string>
+    <string name="role_learn_giver">מורה / מלמד</string>
+    <string name="role_office_volunteer">מתנדב משרדי</string>
+    <string name="role_food_volunteer">מתנדב חלוקת מזון</string>
+    <string name="role_group_coordinator">רכז קבוצה</string>
+    <string name="role_supervisor">מנהל</string>
+    <string name="logout_confirm_title">התנתקות</string>
+    <string name="logout_confirm_message">האם אתה בטוח שברצונך להתנתק?</string>
+    <string name="yes">כן</string>
+    <string name="no">לא</string>
 </resources>

@@ -36,6 +36,25 @@ interface ApiService {
     suspend fun getStatistics(
         @Header("Authorization") token: String
     ): Response<StatisticsResponse>
+
+    // Push-notification endpoints
+    @POST("api/notifications/register-token")
+    suspend fun registerDeviceToken(
+        @Header("Authorization") token: String,
+        @Body request: RegisterDeviceTokenRequest
+    ): Response<GenericResponse>
+
+    @HTTP(method = "DELETE", path = "api/notifications/token", hasBody = true)
+    suspend fun deleteDeviceToken(
+        @Header("Authorization") token: String,
+        @Body request: RegisterDeviceTokenRequest
+    ): Response<GenericResponse>
+
+    @POST("api/notifications/send-to-role")
+    suspend fun sendPushToRole(
+        @Header("Authorization") token: String,
+        @Body request: SendPushToRoleRequest
+    ): Response<SendPushResponse>
 }
 
 // Request/Response data classes
@@ -135,4 +154,30 @@ data class StatisticsData(
     val availableTeachers: Int,
     val totalPairings: Int,
     val recentRegistrations: Int
+)
+
+// --- Push notifications DTOs ---
+data class RegisterDeviceTokenRequest(
+    val token: String,
+    val platform: String = "android"
+)
+
+data class GenericResponse(
+    val success: Boolean,
+    val message: String?
+)
+
+data class SendPushToRoleRequest(
+    val roles: List<String>,
+    val title: String,
+    val body: String,
+    val data: Map<String, String>? = null
+)
+
+data class SendPushResponse(
+    val success: Boolean,
+    val message: String?,
+    val sent: Int?,
+    val failed: Int?,
+    val cleanedInvalidTokens: Int?
 )

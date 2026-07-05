@@ -9,6 +9,8 @@ const { initializeDatabase, testConnection } = require('./config/database');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
+const notificationRoutes = require('./routes/notifications');
+const { initFirebase } = require('./config/firebase');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -52,6 +54,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -113,7 +116,10 @@ const startServer = async () => {
     await initializeDatabase();
     console.log('✓ Database tables initialized successfully');
 
-    console.log('Step 3: Starting HTTP server...');
+    console.log('Step 3: Initializing Firebase Admin (push notifications)...');
+    initFirebase();
+
+    console.log('Step 4: Starting HTTP server...');
     // Start server
     const server = app.listen(PORT, () => {
       console.log('='.repeat(50));
