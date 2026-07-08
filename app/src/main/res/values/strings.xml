@@ -19,6 +19,11 @@
     <string name="food_volunteer_title">אני רוצה להתנדב</string>
     <string name="food_volunteer_description">הירשם כדי להתנדב לאריזת חבילות מזון</string>
 
+    <string name="donations_title">תרומות</string>
+    <string name="donations_description">לחץ כאן לתרומות</string>
+    <string name="donations_link_text">לחץ על לינק זה כדי לתרום לתכלית</string>
+    <string name="donations_url">https://www.tachlit.org.il/donations</string>
+
     <string name="supervisor_title">מנהל</string>
     <string name="supervisor_description">כניסה למנהלים</string>
     <string name="group_coordinator_title">רכזי קבוצות</string>

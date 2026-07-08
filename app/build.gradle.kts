@@ -86,8 +86,9 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
     // Firebase (Cloud Messaging for push notifications)
-    implementation(platform("com.google.firebase:firebase-bom:34.15.0"))
-    implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
+    // As of recent Firebase SDKs, KTX APIs are included in main artifacts; use "firebase-messaging"
+    implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.android.gms:play-services-base:18.5.0")
     implementation("com.google.firebase:firebase-analytics")
 

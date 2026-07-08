@@ -66,6 +66,10 @@ class MainActivity : AppCompatActivity() {
             handleRoleSelection(UserType.GROUP_COORDINATOR)
         }
 
+        findViewById<CardView>(R.id.cardDonations).setOnClickListener {
+            startActivity(Intent(this, DonationsActivity::class.java))
+        }
+
         findViewById<CardView>(R.id.cardSupervisor).setOnClickListener {
             // TODO: Navigate to Supervisor login
             handleRoleSelection(UserType.SUPERVISOR)

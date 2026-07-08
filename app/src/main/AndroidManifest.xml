@@ -71,6 +71,13 @@
             android:parentActivityName=".MainActivity" />
 
         <activity
+            android:name=".DonationsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Tachlit.NoActionBar"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
             android:name=".SupervisorManagementActivity"
             android:exported="false"
             android:screenOrientation="portrait"
@@ -80,6 +87,7 @@
             android:name=".SupervisorSendNotificationActivity"
             android:exported="false"
             android:screenOrientation="portrait"
+            android:theme="@style/Theme.Tachlit.NoActionBar"
             android:parentActivityName=".SupervisorActivity" />
 
         <activity
