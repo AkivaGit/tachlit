@@ -23,6 +23,9 @@
     <string name="donations_description">לחץ כאן לתרומות</string>
     <string name="donations_link_text">לחץ על לינק זה כדי לתרום לתכלית</string>
     <string name="donations_url">https://www.tachlit.org.il/donations</string>
+    <string name="jgive_card_description">לחץ כאן לתרומה דרך J-Give</string>
+    <string name="jgive_link_text">לחץ על לינק זה כדי לתרום דרך J-Give</string>
+    <string name="jgive_url">https://www.jgive.com/new/en/ils/charity-organizations/3074</string>
 
     <string name="supervisor_title">מנהל</string>
     <string name="supervisor_description">כניסה למנהלים</string>

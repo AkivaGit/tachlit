@@ -21,6 +21,11 @@ class DonationsActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.donations_url)))
             startActivity(intent)
         }
+
+        findViewById<MaterialButton>(R.id.btnJGiveLink).setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.jgive_url)))
+            startActivity(intent)
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
