@@ -15,5 +15,13 @@
 local.properties
 node_modules/
 .idea/
-.server/config/tachlit-2efd4-firebase-adminsdk-fbsvc-83eead7686.json
-.server/config/firebase-service-account.json
+
+# Firebase Admin SDK service account keys (contain a private key, never commit)
+server/config/firebase-service-account.json
+server/config/*-firebase-adminsdk-*.json
+
+# Release builds (signed APK/AAB output)
+/app/release/
+
+# Real production secret values (see setup.md). Local only, never commit.
+setup.local.md

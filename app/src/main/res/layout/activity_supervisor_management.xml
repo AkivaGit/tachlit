@@ -19,6 +19,18 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Screen title (shown here since the app has no action bar) -->
+            <TextView
+                android:id="@+id/tvScreenTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:gravity="center"
+                android:textColor="@color/main_color"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                tools:text="כל המשתמשים" />
+
             <!-- Statistics Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"

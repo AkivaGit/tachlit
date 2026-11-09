@@ -15,7 +15,16 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Tachlit">
+        android:theme="@style/Theme.Tachlit"
+        android:enableOnBackInvokedCallback="false"
+        tools:targetApi="33">
+
+        <!-- Android 16 (API 36) ignores screenOrientation on tablets/foldables
+             (smallest width >= 600dp). This keeps every screen portrait-only
+             there too. Note: honoured while targeting API 36; removed in API 37. -->
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+            android:value="true" />
 
         <activity
             android:name=".SplashActivity"

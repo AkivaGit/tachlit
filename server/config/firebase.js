@@ -12,22 +12,26 @@
 const path = require('path');
 const fs = require('fs');
 
-let admin = null;
+// Firebase Messaging instance; null while push is disabled.
+let messaging = null;
 let initialized = false;
 let initError = null;
 
 const initFirebase = () => {
-  if (initialized) return admin;
+  if (initialized) return messaging;
   try {
     // Lazy-require so the server doesn't crash if the package isn't installed yet.
-    admin = require('firebase-admin');
+    // Modular API: the old `admin.credential` / `admin.messaging()` namespace
+    // was removed in firebase-admin v14.
+    const { initializeApp, cert } = require('firebase-admin/app');
+    const { getMessaging } = require('firebase-admin/messaging');
 
     let credential = null;
 
     if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
       try {
         const parsed = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
-        credential = admin.credential.cert(parsed);
+        credential = cert(parsed);
         console.log('🔥 Firebase Admin: using FIREBASE_SERVICE_ACCOUNT_JSON env var');
       } catch (e) {
         console.error('❌ FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON:', e.message);
@@ -73,7 +77,7 @@ const initFirebase = () => {
       const filePath = candidatePaths.find(p => typeof p === 'string' && fs.existsSync(p));
       if (filePath) {
         try {
-          credential = admin.credential.cert(require(filePath));
+          credential = cert(require(filePath));
           console.log(`🔥 Firebase Admin: using service account file at ${filePath}`);
         } catch (e) {
           console.error('❌ Failed to load Firebase credential from file:', filePath, '-', e.message);
@@ -89,19 +93,19 @@ const initFirebase = () => {
         'Push notifications are DISABLED until this is provided.'
       );
       console.warn('⚠️  ' + initError.message);
-      admin = null;
+      messaging = null;
       initialized = true;
       return null;
     }
 
-    admin.initializeApp({ credential });
+    messaging = getMessaging(initializeApp({ credential }));
     console.log('✅ Firebase Admin SDK initialized successfully');
     initialized = true;
-    return admin;
+    return messaging;
   } catch (err) {
     initError = err;
     console.error('❌ Failed to initialize Firebase Admin:', err.message);
-    admin = null;
+    messaging = null;
     initialized = true;
     return null;
   }
@@ -109,7 +113,7 @@ const initFirebase = () => {
 
 const isEnabled = () => {
   if (!initialized) initFirebase();
-  return admin !== null;
+  return messaging !== null;
 };
 
 /**
@@ -150,7 +154,7 @@ const sendToTokens = async ({ tokens, title, body, data }) => {
     };
 
     try {
-      const resp = await admin.messaging().sendEachForMulticast(message);
+      const resp = await messaging.sendEachForMulticast(message);
       successCount += resp.successCount;
       failureCount += resp.failureCount;
       resp.responses.forEach((r, idx) => {

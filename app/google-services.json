@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:571337343153:android:c12c260fa011a47966e290",
         "android_client_info": {
-          "package_name": "com.example.tachlit"
+          "package_name": "org.tachlit.app"
         }
       },
       "oauth_client": [],

@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.tachlit"
+    namespace = "org.tachlit.app"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.tachlit"
+        applicationId = "org.tachlit.app"
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 

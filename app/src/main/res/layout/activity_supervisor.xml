@@ -289,6 +289,18 @@
                         android:textStyle="bold"
                         android:padding="16dp" />
 
+                    <Button
+                        android:id="@+id/btnSendNotification"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="@string/supervisor_send_notification_button"
+                        android:backgroundTint="@color/main_color"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:padding="16dp" />
+
                 </LinearLayout>
 
                 <!-- City Filter -->
@@ -344,6 +356,15 @@
                     </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
+
+                <Button
+                    android:id="@+id/btnLogout"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/logout" />
 
             </LinearLayout>
 
