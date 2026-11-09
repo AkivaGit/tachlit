@@ -1,5 +1,8 @@
 const { body, validationResult, param, query } = require('express-validator');
 
+// Bilingual validation message. `message` stays English; `message_he` is Hebrew.
+const bi = (en, he) => ({ en, he });
+
 // Handle validation errors
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
@@ -7,11 +10,17 @@ const handleValidationErrors = (req, res, next) => {
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
-      errors: errors.array().map(error => ({
-        field: error.path,
-        message: error.msg,
-        value: error.value
-      }))
+      message_he: 'חלק מהפרטים אינם תקינים',
+      errors: errors.array().map(error => {
+        const msg = error.msg;
+        const isBi = msg && typeof msg === 'object';
+        return {
+          field: error.path,
+          message: isBi ? msg.en : msg,
+          message_he: isBi ? msg.he : undefined,
+          value: error.value
+        };
+      })
     });
   }
   next();
@@ -22,32 +31,56 @@ const validateRegistration = [
   body('email')
     .isEmail()
     .normalizeEmail()
-    .withMessage('Please provide a valid email address'),
+    .withMessage(bi(
+      'Please provide a valid email address',
+      'יש להזין כתובת אימייל תקינה'
+    )),
 
   body('password')
     .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
+    .withMessage(bi(
+      'Password must be at least 6 characters long',
+      'הסיסמה חייבת להכיל לפחות 6 תווים'
+    ))
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
+    .withMessage(bi(
+      'Password must contain at least one lowercase letter, one uppercase letter, and one number',
+      'הסיסמה חייבת להכיל לפחות אות קטנה אחת באנגלית, אות גדולה אחת באנגלית וספרה אחת'
+    )),
 
   body('name')
     .trim()
     .isLength({ min: 1, max: 100 })
-    .withMessage('Name is required and must be less than 100 characters')
+    .withMessage(bi(
+      'Name is required and must be less than 100 characters',
+      'יש להזין שם פרטי, עד 100 תווים'
+    ))
     .matches(/^[a-zA-Z\u0590-\u05FF\s]+$/)
-    .withMessage('Name can only contain letters (English and Hebrew) and spaces'),
+    .withMessage(bi(
+      'Name can only contain letters (English and Hebrew) and spaces',
+      'השם הפרטי יכול להכיל רק אותיות (עברית או אנגלית) ורווחים'
+    )),
 
   body('family_name')
     .trim()
     .isLength({ min: 1, max: 100 })
-    .withMessage('Family name is required and must be less than 100 characters')
+    .withMessage(bi(
+      'Family name is required and must be less than 100 characters',
+      'יש להזין שם משפחה, עד 100 תווים'
+    ))
     .matches(/^[a-zA-Z\u0590-\u05FF\s]+$/)
-    .withMessage('Family name can only contain letters (English and Hebrew) and spaces'),
+    .withMessage(bi(
+      'Family name can only contain letters (English and Hebrew) and spaces',
+      'שם המשפחה יכול להכיל רק אותיות (עברית או אנגלית) ורווחים'
+    )),
 
   body('phone')
     .optional()
     .isMobilePhone('any')
-    .withMessage('Please provide a valid phone number'),
+    .withMessage(bi(
+      'Please provide a valid mobile phone number, digits only (for example 0501234567)',
+      'יש להזין מספר טלפון נייד תקין, ספרות בלבד (לדוגמה 0501234567)'
+    )),
 
   handleValidationErrors
 ];

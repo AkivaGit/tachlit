@@ -16,7 +16,8 @@ router.post('/register', validateRegistration, async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'User with this email already exists'
+        message: 'User with this email already exists',
+        message_he: 'כבר קיים משתמש עם כתובת האימייל הזו'
       });
     }
 
@@ -57,17 +58,42 @@ router.post('/register', validateRegistration, async (req, res) => {
   } catch (error) {
     console.error('Registration error:', error);
 
-    // Handle database constraint errors
-    if (error.code === '23505') { // PostgreSQL unique constraint error
-      return res.status(400).json({
-        success: false,
-        message: 'User with this email already exists'
-      });
+    // Always send the cause back, in English (`message`) and Hebrew
+    // (`message_he`), so the app can show it to the user.
+    // PostgreSQL error codes: https://www.postgresql.org/docs/current/errcodes-appendix.html
+    let status = 400;
+    let message;
+    let message_he;
+    switch (error.code) {
+      case '23505': // unique_violation
+        message = 'User with this email already exists';
+        message_he = 'כבר קיים משתמש עם כתובת האימייל הזו';
+        break;
+      case '23502': // not_null_violation
+        message = `Missing required field: ${error.column || 'unknown'}`;
+        message_he = `חסר שדה חובה: ${error.column || 'לא ידוע'}`;
+        break;
+      case '22001': // string_data_right_truncation
+        message = 'One of the fields is too long';
+        message_he = 'אחד השדות ארוך מדי';
+        break;
+      case '23514': { // check_violation
+        const badType = error.constraint === 'users_user_type_check';
+        const userType = req.body && req.body.userType;
+        message = badType ? `Invalid user type: ${userType}` : 'One of the fields has an invalid value';
+        message_he = badType ? `סוג משתמש לא תקין: ${userType}` : 'באחד השדות יש ערך לא תקין';
+        break;
+      }
+      default:
+        status = 500;
+        message = `Internal server error during registration: ${error.message}`;
+        message_he = `שגיאה בשרת בזמן ההרשמה: ${error.message}`;
     }
 
-    res.status(500).json({
+    res.status(status).json({
       success: false,
-      message: 'Internal server error during registration'
+      message,
+      message_he
     });
   }
 });

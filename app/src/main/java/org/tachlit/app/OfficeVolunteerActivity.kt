@@ -83,55 +83,26 @@ class OfficeVolunteerActivity : BaseActivity() {
                     )
                     finish()
                 } else {
-                    Toast.makeText(this@OfficeVolunteerActivity, "Registration failed: ${result.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                    showErrorDialog(
+                        getString(R.string.registration_failed_title),
+                        result.exceptionOrNull()?.message ?: getString(R.string.registration_failed_unknown)
+                    )
                 }
             }
         }
     }
 
-    private fun validateInput(): Boolean {
-        var isValid = true
-
-        if (binding.etName.text.toString().trim().isEmpty()) {
-            binding.etName.error = getString(R.string.please_fill_all_fields)
-            isValid = false
-        }
-
-        if (binding.etFamilyName.text.toString().trim().isEmpty()) {
-            binding.etFamilyName.error = getString(R.string.please_fill_all_fields)
-            isValid = false
-        }
-
-        if (binding.etEmail.text.toString().trim().isEmpty()) {
-            binding.etEmail.error = getString(R.string.please_fill_all_fields)
-            isValid = false
-        }
-
-        if (binding.etPassword.text.toString().trim().isEmpty()) {
-            binding.etPassword.error = getString(R.string.please_fill_all_fields)
-            isValid = false
-        }
-
-        if (binding.etPhone.text.toString().trim().isEmpty()) {
-            binding.etPhone.error = getString(R.string.please_fill_all_fields)
-            isValid = false
-        }
-
-        if (binding.etCity.text.toString().trim().isEmpty()) {
-            binding.etCity.error = getString(R.string.please_fill_all_fields)
-            isValid = false
-        }
-
-        if (binding.etSkills.text.toString().trim().isEmpty()) {
-            binding.etSkills.error = getString(R.string.please_fill_all_fields)
-            isValid = false
-        }
-
-        if (binding.etAvailableSchedule.text.toString().trim().isEmpty()) {
-            binding.etAvailableSchedule.error = getString(R.string.please_fill_all_fields)
-            isValid = false
-        }
-
-        return isValid
-    }
+    /** Shows one Hebrew + English popup listing every empty required field. */
+    private fun validateInput(): Boolean = checkRequiredFields(
+        listOf(
+            RequiredField(binding.etName, R.string.field_name_he, R.string.field_name_en),
+            RequiredField(binding.etFamilyName, R.string.field_family_name_he, R.string.field_family_name_en),
+            RequiredField(binding.etEmail, R.string.field_email_he, R.string.field_email_en),
+            RequiredField(binding.etPassword, R.string.field_password_he, R.string.field_password_en),
+            RequiredField(binding.etPhone, R.string.field_phone_he, R.string.field_phone_en),
+            RequiredField(binding.etCity, R.string.field_city_he, R.string.field_city_en),
+            RequiredField(binding.etSkills, R.string.field_skills_he, R.string.field_skills_en),
+            RequiredField(binding.etAvailableSchedule, R.string.field_available_schedule_he, R.string.field_available_schedule_en)
+        )
+    )
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import org.tachlit.app.data.*
 import org.tachlit.app.network.NetworkModule
 import org.tachlit.app.network.RegisterRequest
+import org.tachlit.app.network.ServerError
 import org.tachlit.app.notifications.FcmTokenUploader
 import org.tachlit.app.session.SessionManager
 import kotlinx.coroutines.flow.Flow
@@ -79,7 +80,14 @@ class TachlitRepository(
                 }
                 Result.success(registeredUser)
             } else {
-                Result.failure(Exception("Failed to register user: ${response.body()?.message ?: response.message()}"))
+                // Pass the server's own reason up so the screen can show it.
+                val cause = if (response.isSuccessful) {
+                    response.body()?.message?.takeIf { it.isNotBlank() }
+                        ?: "Server error (HTTP ${response.code()})"
+                } else {
+                    ServerError.describe(response)
+                }
+                Result.failure(Exception(cause))
             }
         } catch (e: Exception) {
             // Fallback to local registration

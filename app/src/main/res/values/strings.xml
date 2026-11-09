@@ -145,4 +145,40 @@
     <string name="logout_confirm_message">האם אתה בטוח שברצונך להתנתק?</string>
     <string name="yes">כן</string>
     <string name="no">לא</string>
+    <string name="ok">אישור</string>
+    <string name="registration_failed_title">ההרשמה נכשלה / Registration failed</string>
+    <string name="registration_failed_unknown">אירעה שגיאה לא ידועה. נסו שוב.\n\nAn unknown error occurred. Please try again.</string>
+
+    <!-- Missing required fields popup (always shown in Hebrew and English) -->
+    <string name="missing_fields_title">חסרים שדות חובה / Missing required fields</string>
+    <string name="missing_fields_intro_he">יש למלא את השדות הבאים:</string>
+    <string name="missing_fields_intro_en">Please fill in the following fields:</string>
+
+    <!-- Registration field names, in both languages, for the popup above -->
+    <string name="field_name_he">שם פרטי</string>
+    <string name="field_name_en">First name</string>
+    <string name="field_family_name_he">שם משפחה</string>
+    <string name="field_family_name_en">Family name</string>
+    <string name="field_email_he">אימייל</string>
+    <string name="field_email_en">Email</string>
+    <string name="field_password_he">סיסמה</string>
+    <string name="field_password_en">Password</string>
+    <string name="field_phone_he">טלפון</string>
+    <string name="field_phone_en">Phone</string>
+    <string name="field_city_he">עיר</string>
+    <string name="field_city_en">City</string>
+    <string name="field_subjects_can_teach_he">מקצועות שאני יכול ללמד</string>
+    <string name="field_subjects_can_teach_en">Subjects I can teach</string>
+    <string name="field_available_schedule_he">זמנים פנויים</string>
+    <string name="field_available_schedule_en">Available times</string>
+    <string name="field_skills_he">כישורים</string>
+    <string name="field_skills_en">Skills</string>
+    <string name="field_physical_capabilities_he">יכולות פיזיות</string>
+    <string name="field_physical_capabilities_en">Physical capabilities</string>
+    <string name="field_group_name_he">שם הקבוצה</string>
+    <string name="field_group_name_en">Group name</string>
+    <string name="field_group_type_he">סוג הקבוצה</string>
+    <string name="field_group_type_en">Group type</string>
+    <string name="field_participants_count_he">מספר משתתפים</string>
+    <string name="field_participants_count_en">Number of participants</string>
 </resources>

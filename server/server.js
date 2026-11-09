@@ -28,8 +28,11 @@ app.use(cors({
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
+  // Same shape as every other error reply, so the app can show `message`.
   message: {
-    error: 'Too many requests from this IP, please try again later.'
+    success: false,
+    message: 'Too many requests from this IP, please try again later.',
+    message_he: 'יותר מדי בקשות מהמכשיר הזה. נסו שוב מאוחר יותר.'
   }
 });
 app.use(limiter);
