@@ -25,3 +25,7 @@ server/config/*-firebase-adminsdk-*.json
 
 # Real production secret values (see setup.md). Local only, never commit.
 setup.local.md
+
+# Android signing keys (the real one lives at ~/Documents/tachlit.jks)
+*.jks
+*.keystore

@@ -214,7 +214,57 @@ curl http://localhost:3000/health
 
 ---
 
-## 9. Files that must never be committed
+## 9. Android release build and signing (Play Store)
+
+Debug and release builds run the **same code**: same app ID (`org.tachlit.app`),
+same server, same Firebase project. The difference is the signing key.
+
+| | Debug | Release |
+|---|---|---|
+| Signed with | Android's shared debug key (`~/.android/debug.keystore`) | The Tachlit upload key (below) |
+| Debuggable | Yes | No |
+| Accepted by Google Play | No | Yes |
+
+### The upload key (keystore)
+
+| Item | Value |
+|---|---|
+| Keystore file | `~/Documents/tachlit.jks` on the developer's Mac (`/Users/akivamidrag/Documents/tachlit.jks`) |
+| Key alias | `tachkey` |
+| Certificate owner | `CN=Tachlit` |
+| Created | 2026-11-09, valid until 2051-11-03 |
+| SHA-1 | `B0:2E:FE:BD:88:C0:9C:0C:BE:6A:25:CA:BC:7C:9D:0E:4B:1E:78:30` |
+| SHA-256 | `F1:69:A9:FE:41:4F:15:45:B9:B4:00:5E:3E:70:39:AD:32:31:17:DE:77:AA:29:D2:D2:36:94:76:36:AF:70:21` |
+| Passwords | **Not stored in this repo.** See `setup.local.md`. |
+
+- The keystore is **outside the repository** and must never be committed.
+  `*.jks` and `*.keystore` are in `.gitignore` as a safety net.
+- **Back it up** (file + passwords), for example in a password manager.
+  Without it no app update can be uploaded until Google approves an upload-key
+  reset in Play Console.
+- Check which key signed a bundle:
+  ```bash
+  keytool -printcert -jarfile app/release/app-release.aab
+  ```
+  The SHA-256 must match the table above.
+
+### Making a release
+
+1. Raise `versionCode` (and usually `versionName`) in `app/build.gradle.kts`.
+   Google Play rejects a bundle whose `versionCode` is not higher than the last
+   uploaded one.
+2. Android Studio → **Build** → **Generate Signed App Bundle or APK** →
+   **Android App Bundle** → keystore `~/Documents/tachlit.jks`, alias `tachkey`
+   → build type **release**.
+3. Output: `app/release/app-release.aab` (ignored by git). Upload it in Play Console.
+
+Debug and release cannot be installed side by side on one phone, because they
+share the app ID. Installing debug over a Play Store install fails with a
+signature mismatch. Uninstall first, which also deletes the saved login.
+
+---
+
+## 10. Files that must never be committed
 
 Already in `.gitignore`:
 
@@ -225,6 +275,7 @@ Already in `.gitignore`:
 | `server/.env` | Local secrets |
 | `setup.local.md` | Real production secret values |
 | `app/release/` | Signed release builds (APK/AAB) |
+| `*.jks`, `*.keystore` | Android signing keys. The real one lives outside the repo at `~/Documents/tachlit.jks`. |
 
 `app/google-services.json` **is** committed on purpose. It is the Android client
 config and is meant to ship inside the app.
@@ -239,6 +290,7 @@ For a person or an AI assistant picking this up later:
 |---|---|
 | Real values of `JWT_SECRET`, `DATABASE_URL`, and notes | `setup.local.md` at the repo root, on the developer's Mac only |
 | Firebase service account key | `server/config/firebase-service-account.json`, on the developer's Mac only |
+| Android upload key (keystore) | `~/Documents/tachlit.jks`, on the developer's Mac only. Alias and passwords: `setup.local.md`. |
 | Live values actually in use | Render dashboard → web service → Environment |
 
 If `setup.local.md` is missing (new computer, fresh clone), the live values can
