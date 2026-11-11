@@ -149,6 +149,11 @@
     <string name="registration_failed_title">ההרשמה נכשלה / Registration failed</string>
     <string name="registration_failed_unknown">אירעה שגיאה לא ידועה. נסו שוב.\n\nAn unknown error occurred. Please try again.</string>
 
+    <!-- Logout for every role except supervisor deletes the registration -->
+    <string name="logout_delete_confirm_message">התנתקות תמחק לצמיתות את ההרשמה שלך מהמערכת. כדי לחזור תצטרך להירשם מחדש. להמשיך?\n\nLogging out permanently deletes your registration. To come back you will need to register again. Continue?</string>
+    <string name="logout_failed_title">ההתנתקות נכשלה / Logout failed</string>
+    <string name="server_unreachable">לא ניתן להתחבר לשרת. בדקו את החיבור לאינטרנט ונסו שוב בעוד דקה.\n\nCould not reach the server. Check your internet connection and try again in a minute.</string>
+
     <!-- Missing required fields popup (always shown in Hebrew and English) -->
     <string name="missing_fields_title">חסרים שדות חובה / Missing required fields</string>
     <string name="missing_fields_intro_he">יש למלא את השדות הבאים:</string>

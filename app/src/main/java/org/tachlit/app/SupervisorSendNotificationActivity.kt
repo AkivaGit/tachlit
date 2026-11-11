@@ -16,9 +16,9 @@ import kotlinx.coroutines.launch
  * Simple screen for the SUPERVISOR to send a push notification broadcast
  * to one or more role groups (teachers, students, office volunteers, ...).
  *
- * Uses the same supervisor JWT already stored in [TachlitRepository]. If the
- * repository has no token (e.g. the user re-opened the app without logging in),
- * a friendly error is shown.
+ * Each screen creates its own [TachlitRepository], so the supervisor JWT must be
+ * passed in by the caller via [EXTRA_SUPERVISOR_TOKEN] (SupervisorActivity does
+ * this). Without it, sending fails with "No supervisor token available".
  */
 class SupervisorSendNotificationActivity : BaseActivity() {
 
@@ -57,6 +57,8 @@ class SupervisorSendNotificationActivity : BaseActivity() {
             foodVolunteerDao = db.foodVolunteerDao(),
             pairingDao = db.pairingDao()
         )
+        // Token from the supervisor screen's login; this repository starts empty.
+        intent.getStringExtra(EXTRA_SUPERVISOR_TOKEN)?.let { repository.setSupervisorToken(it) }
 
         val titleInput = findViewById<EditText>(R.id.editTitle)
         val bodyInput = findViewById<EditText>(R.id.editBody)
@@ -115,5 +117,9 @@ class SupervisorSendNotificationActivity : BaseActivity() {
                 )
             }
         }
+    }
+
+    companion object {
+        const val EXTRA_SUPERVISOR_TOKEN = "supervisor_token"
     }
 }

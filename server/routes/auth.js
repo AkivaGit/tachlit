@@ -1,4 +1,5 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
 const { validateRegistration, validateLogin } = require('../middleware/validation');
@@ -184,6 +185,82 @@ router.get('/verify', async (req, res) => {
     res.status(401).json({
       success: false,
       message: 'Invalid or expired token'
+    });
+  }
+});
+
+/**
+ * POST /api/auth/logout
+ * Auth: Bearer JWT of the user who is logging out.
+ *
+ * Product rule: when any user EXCEPT a supervisor logs out, their registration
+ * is permanently deleted. Deleting the users row also removes everything linked
+ * to it (role details, device tokens, pairings) via ON DELETE CASCADE.
+ * Supervisors keep their account.
+ *
+ * The token may be expired: users usually log out long after the token's
+ * lifetime (JWT_EXPIRES_IN, default 24h), and its signature still proves who
+ * they are. This is the only route that accepts expired tokens.
+ */
+router.post('/logout', async (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'Access token required',
+      message_he: 'חסר אסימון התחברות'
+    });
+  }
+
+  let decoded;
+  try {
+    const jwtSecret = process.env.JWT_SECRET || 'tachlit-default-secret-key-change-in-production';
+    decoded = jwt.verify(token, jwtSecret, { ignoreExpiration: true });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid token',
+      message_he: 'אסימון התחברות לא תקין'
+    });
+  }
+
+  try {
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      // Already gone (deleted by a supervisor, or the database was reset).
+      return res.json({
+        success: true,
+        deleted: false,
+        message: 'Registration was already deleted',
+        message_he: 'ההרשמה כבר נמחקה'
+      });
+    }
+
+    if (user.user_type === 'SUPERVISOR') {
+      return res.json({
+        success: true,
+        deleted: false,
+        message: 'Supervisor logged out; account kept',
+        message_he: 'המנהל התנתק; החשבון נשמר'
+      });
+    }
+
+    await user.delete();
+    console.log(`🗑️  User #${user.id} (${user.user_type}) logged out; registration deleted`);
+
+    return res.json({
+      success: true,
+      deleted: true,
+      message: 'Logged out and registration deleted',
+      message_he: 'ההתנתקות בוצעה וההרשמה נמחקה'
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    return res.status(500).json({
+      success: false,
+      message: `Internal server error during logout: ${error.message}`,
+      message_he: `שגיאה בשרת בזמן ההתנתקות: ${error.message}`
     });
   }
 });

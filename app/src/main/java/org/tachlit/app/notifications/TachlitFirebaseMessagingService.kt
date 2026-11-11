@@ -64,12 +64,10 @@ class TachlitFirebaseMessagingService : FirebaseMessagingService() {
             data.forEach { (k, v) -> putExtra(k, v) }
         }
 
-        val pendingFlags =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            else PendingIntent.FLAG_UPDATE_CURRENT
-
-        val pending = PendingIntent.getActivity(this, 0, intent, pendingFlags)
+        val pending = PendingIntent.getActivity(
+            this, 0, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)

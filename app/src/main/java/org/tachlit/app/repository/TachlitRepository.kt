@@ -96,6 +96,31 @@ class TachlitRepository(
         }
     }
 
+    /**
+     * Called when a user other than a supervisor logs out: the server permanently
+     * deletes their registration, then the local copy on this phone is removed.
+     *
+     * Succeeds when the record is gone (or was already gone), or when this phone
+     * has no server login to delete with. A 401 means the saved token is no longer
+     * valid (e.g. JWT_SECRET changed); the phone cannot delete the record then, so
+     * logout continues and a supervisor can delete it from the users list.
+     * Fails on network or server errors, so the user stays logged in and can retry.
+     */
+    suspend fun deleteRegistrationOnLogout(authToken: String?, userId: Long): Result<Unit> {
+        return try {
+            if (!authToken.isNullOrBlank()) {
+                val response = apiService.logout("Bearer $authToken")
+                if (!response.isSuccessful && response.code() != 401) {
+                    return Result.failure(Exception(ServerError.describe(response)))
+                }
+            }
+            userDao.getUserById(userId)?.let { userDao.deleteUser(it) }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // Supervisor login
     suspend fun loginSupervisor(email: String, password: String): Result<String> {
         return try {

@@ -118,7 +118,13 @@ class SupervisorActivity : BaseActivity() {
 
         // Shown only inside the management section, i.e. after supervisor login.
         binding.btnSendNotification.setOnClickListener {
-            startActivity(Intent(this, SupervisorSendNotificationActivity::class.java))
+            startActivity(
+                Intent(this, SupervisorSendNotificationActivity::class.java)
+                    .putExtra(
+                        SupervisorSendNotificationActivity.EXTRA_SUPERVISOR_TOKEN,
+                        repository.getSupervisorToken()
+                    )
+            )
         }
 
         binding.btnLogout.setOnClickListener {

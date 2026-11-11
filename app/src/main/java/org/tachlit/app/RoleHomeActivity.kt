@@ -6,16 +6,23 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import org.tachlit.app.data.TachlitDatabase
 import org.tachlit.app.data.UserType
+import org.tachlit.app.repository.TachlitRepository
 import org.tachlit.app.session.SessionManager
+import java.io.IOException
 
 /**
  * Generic "personal home" screen shown after a volunteer role successfully
  * registers or the app is relaunched with an active session.
  *
  * Which text is shown depends on the [EXTRA_ROLE] value (a [UserType] name).
- * A logout button returns the user to
- * [MainActivity] and clear the persisted session.
+ * Logging out permanently deletes the user's registration on the server (and
+ * the local copy), clears the persisted session and returns to [MainActivity].
+ * If the deletion fails, a Hebrew + English popup explains why and the user
+ * stays logged in so they can retry.
  */
 class RoleHomeActivity : BaseActivity() {
 
@@ -53,15 +60,43 @@ class RoleHomeActivity : BaseActivity() {
     private fun confirmLogout() {
         AlertDialog.Builder(this)
             .setTitle(R.string.logout_confirm_title)
-            .setMessage(R.string.logout_confirm_message)
+            .setMessage(R.string.logout_delete_confirm_message)
             .setPositiveButton(R.string.yes) { _, _ -> doLogout() }
             .setNegativeButton(R.string.no, null)
             .show()
     }
 
     private fun doLogout() {
-        SessionManager.logout(this)
-        goToMain()
+        val db = TachlitDatabase.getDatabase(applicationContext)
+        val repository = TachlitRepository(
+            db.userDao(),
+            db.learnAskerDao(),
+            db.learnGiverDao(),
+            db.officeVolunteerDao(),
+            db.foodVolunteerDao(),
+            db.pairingDao()
+        )
+        lifecycleScope.launch {
+            showLoading()
+            val result = repository.deleteRegistrationOnLogout(
+                authToken = SessionManager.getAuthToken(this@RoleHomeActivity),
+                userId = SessionManager.getUserId(this@RoleHomeActivity)
+            )
+            hideLoading()
+            result
+                .onSuccess {
+                    SessionManager.logout(this@RoleHomeActivity)
+                    goToMain()
+                }
+                .onFailure { error ->
+                    val cause = if (error is IOException) {
+                        getString(R.string.server_unreachable)
+                    } else {
+                        error.message ?: getString(R.string.registration_failed_unknown)
+                    }
+                    showErrorDialog(getString(R.string.logout_failed_title), cause)
+                }
+        }
     }
 
     private fun goToMain() {

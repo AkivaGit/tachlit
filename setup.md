@@ -156,6 +156,20 @@ A phone is signed up for notifications only when someone **registers** on it
 through a role screen, or **logs in as supervisor** on it. On Android 13+ the
 user must also tap **Allow** when the app asks for notification permission.
 
+### Logging out deletes the registration
+
+- When any user **except a supervisor** logs out, the app calls
+  `POST /api/auth/logout` and the server **permanently deletes** that user and
+  everything linked to it (role details, device tokens, pairings). To come back
+  they must register again.
+- This works even after the login token expired (default 24h), because that
+  route checks the token's signature but not its age.
+- If the server can't be reached, the app shows a Hebrew + English popup and
+  the user stays logged in, so no record is left behind. They can retry.
+- Supervisors keep their account when they log out.
+- A supervisor can delete any user by hand: Supervisor screen → **כל המשתמשים**
+  (All users) → long-press the user → **כן**.
+
 ### After the database is recreated
 
 - All users, pairings and registered phones are gone and cannot be recovered.

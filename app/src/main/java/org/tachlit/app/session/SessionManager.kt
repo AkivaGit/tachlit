@@ -44,6 +44,10 @@ object SessionManager {
     fun getUserId(context: Context): Long = prefs(context).getLong(KEY_USER_ID, -1L)
     fun isLoggedIn(context: Context): Boolean = !getRole(context).isNullOrBlank()
 
+    /** The server login token (JWT) saved at registration / supervisor login, if any. */
+    fun getAuthToken(context: Context): String? =
+        prefs(context).getString(TachlitFirebaseMessagingService.KEY_AUTH_TOKEN, null)
+
     /**
      * Clear the session on the device and best-effort tell the server to
      * unregister this device's FCM token so it stops receiving pushes.

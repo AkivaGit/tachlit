@@ -37,6 +37,12 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<StatisticsResponse>
 
+    /** Logs out; for every role except supervisor the server deletes the registration. */
+    @POST("api/auth/logout")
+    suspend fun logout(
+        @Header("Authorization") token: String
+    ): Response<LogoutResponse>
+
     // Push-notification endpoints
     @POST("api/notifications/register-token")
     suspend fun registerDeviceToken(
@@ -165,6 +171,13 @@ data class RegisterDeviceTokenRequest(
 data class GenericResponse(
     val success: Boolean,
     val message: String?
+)
+
+data class LogoutResponse(
+    val success: Boolean,
+    val deleted: Boolean?,
+    val message: String?,
+    val message_he: String?
 )
 
 data class SendPushToRoleRequest(
