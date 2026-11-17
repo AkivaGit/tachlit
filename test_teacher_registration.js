@@ -39,7 +39,8 @@ async function testTeacherRegistration() {
             console.log('\nTesting supervisor login and statistics...');
             const loginResponse = await axios.post(`${baseURL}/api/auth/login`, {
                 email: 'supervisor@tachlit.com',
-                password: 'admin123'
+                // Same value as SUPERVISOR_PASSWORD on the server; never hard-code it.
+                password: process.env.SUPERVISOR_PASSWORD
             });
 
             if (loginResponse.data.success) {

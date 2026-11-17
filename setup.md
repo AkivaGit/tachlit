@@ -22,8 +22,8 @@ scratch, plus how the Android app connects to it and how push notifications work
 - The app calls the server at `https://tachlit.onrender.com/`. The address is
   set in `BASE_URL` in `app/src/main/java/org/tachlit/app/network/NetworkModule.kt`.
 - The server **refuses to start without a working database**. At startup it
-  connects to Postgres, creates all tables, creates the default supervisor
-  account, then starts Firebase, then starts listening. If the database step
+  connects to Postgres, creates all tables, creates or updates the supervisor
+  account from `SUPERVISOR_PASSWORD`, then starts Firebase, then starts listening. If the database step
   fails it logs `FAILED TO START SERVER` and exits, and Render keeps restarting it.
 - If the server does not answer at all (requests hang, no response), the first
   thing to check is the database. See [Troubleshooting](#7-troubleshooting).
@@ -84,6 +84,7 @@ web service → **Environment** (left sidebar) → **Environment Variables** →
 | `DATABASE_URL` | `postgresql://USER:PASSWORD@HOST/DBNAME` | Render database → Info → Connections → **Internal Database URL**. Changes whenever the database is recreated. |
 | `NODE_ENV` | `production` | Type it in. Turns on SSL for the database connection (`server/config/database.js`). |
 | `JWT_SECRET` | A long random string, for example 64 hex characters | Make one with `openssl rand -hex 32`. The current value is in `setup.local.md`. Changing it logs every user out. If it is missing, part of the login check fails and the rest falls back to a default secret that is public in this repo. |
+| `SUPERVISOR_PASSWORD` | The staff (supervisor) login password | Choose a strong password. The current value is in `setup.local.md`. Never put it in this repo. Applied on every server start: to change the password, change this value and redeploy. If it is missing, the password is left as it was, and the old public default is revoked (see section 6). |
 | `FIREBASE_SERVICE_ACCOUNT_JSON` | The **entire contents** of the Firebase service account JSON file | Local copy: `server/config/firebase-service-account.json` (ignored by git). Copy it to the clipboard on a Mac with `pbcopy < server/config/firebase-service-account.json` and paste it as the value. Without it the server runs, but push notifications are disabled. |
 
 To get a **new** Firebase service account key (if the local file is lost):
@@ -130,17 +131,26 @@ after a sleep can take about a minute.
 
 ## 6. Accounts and push notifications
 
-### Default supervisor account
-
-Created (or reset) automatically on every server start:
+### Supervisor (staff) account
 
 | Field | Value |
 |---|---|
-| Email | `supervisor@tachlit.com` |
-| Password | `admin123` |
+| Email | `supervisor@tachlit.com` (fixed; the app logs in with it) |
+| Password | The `SUPERVISOR_PASSWORD` environment variable. The value is in `setup.local.md`. |
 
-The app's Supervisor screen logs in with this account. The password is already
-public in this repo's source code, so change it before real production use.
+- The server creates the account, or sets its password, from
+  `SUPERVISOR_PASSWORD` on every start. The password is stored only in Render
+  and in the database, never in this repo or in the app.
+- To change it: Render → web service → **Environment** → edit
+  `SUPERVISOR_PASSWORD` → redeploy. Update `setup.local.md` too.
+- If the variable is missing, the server logs a warning and leaves the password
+  as it was. The old default that used to be in this repo (`admin123`) is
+  revoked, so it never works again.
+- Supervisor accounts can't be created through registration: the server
+  rejects `userType: SUPERVISOR` on `POST /api/auth/register`.
+- After a password login, the app keeps the login token, so reopening the app
+  logs the supervisor straight in. When the token expires (`JWT_EXPIRES_IN`,
+  default 24h), the app shows the password form again.
 
 ### When notifications are sent
 
@@ -175,12 +185,12 @@ user must also tap **Allow** when the app asks for notification permission.
 - All users, pairings and registered phones are gone and cannot be recovered.
 - Phones that registered against the old database must **log out and register
   again**. Their saved login points to a user that no longer exists.
-- Supervisor phones fix themselves, because the app logs the supervisor in again
-  every time it opens.
+- Supervisor phones show the password form again; log in with the supervisor
+  password. The account itself is recreated on the next server start.
 
 ### Quick test with one phone
 
-1. Supervisor screen → log in with `admin123`.
+1. Supervisor screen → log in with the supervisor password.
 2. Tap **Send push notification**, tick only **Supervisors**, send.
 3. The same phone should receive it.
 
@@ -191,6 +201,7 @@ user must also tap **Allow** when the app asks for notification permission.
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | Requests to the server hang, nothing answers | Server crashes at startup, usually the database | Logs → look for `FAILED TO START SERVER` and the lines under it. Check `DATABASE_URL` and that the database exists. |
+| Supervisor login fails, logs show `SUPERVISOR_PASSWORD is not set` | Variable missing | Add `SUPERVISOR_PASSWORD` on the web service (section 4) and redeploy. |
 | `DATABASE_URL environment variable is not set` | Variable missing | Add it on the web service (section 4). |
 | `ENOTFOUND` or `ECONNREFUSED` | Wrong URL, database deleted, or different region | Recreate or check the database, copy the Internal Database URL again. |
 | `The server does not support SSL connections` | SSL on, database does not accept it | Use the External Database URL, or remove `NODE_ENV`. |

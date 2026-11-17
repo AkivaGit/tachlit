@@ -137,21 +137,9 @@ CREATE INDEX IF NOT EXISTS idx_group_coordinators_user_id ON group_coordinators(
 CREATE INDEX IF NOT EXISTS idx_pairings_learn_asker_id ON pairings(learn_asker_id);
 CREATE INDEX IF NOT EXISTS idx_pairings_learn_giver_id ON pairings(learn_giver_id);
 
--- Insert default supervisor user (password: admin123)
--- Note: This is for development/testing purposes only
--- In production, create admin users through a secure process
-INSERT INTO users (email, password_hash, name, family_name, phone, city, user_type)
-VALUES (
-    'supervisor@tachlit.com',
-    'admin123', -- admin123
-    'System',
-    'Administrator',
-    '+972-50-1234567',
-    'Jerusalem',
-    'SUPERVISOR'
-) ON CONFLICT (email) DO UPDATE SET 
-    password_hash = EXCLUDED.password_hash,
-    family_name = EXCLUDED.family_name;
+-- The supervisor account is not created here. The server creates it on every
+-- start from the SUPERVISOR_PASSWORD environment variable, so the password is
+-- never stored in this repo (see setupSupervisor in config/database.js).
 
 -- Create additional indexes for search functionality
 CREATE INDEX IF NOT EXISTS idx_users_name_search ON users USING gin(

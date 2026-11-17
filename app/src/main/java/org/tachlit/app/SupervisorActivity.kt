@@ -1,12 +1,8 @@
 package org.tachlit.app
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -18,6 +14,7 @@ import org.tachlit.app.databinding.ActivitySupervisorBinding
 import androidx.appcompat.app.AlertDialog
 import org.tachlit.app.data.UserType
 import org.tachlit.app.notifications.FcmTokenUploader
+import org.tachlit.app.repository.SessionExpiredException
 import org.tachlit.app.repository.TachlitRepository
 import org.tachlit.app.session.SessionManager
 import kotlinx.coroutines.launch
@@ -26,8 +23,8 @@ class SupervisorActivity : BaseActivity() {
 
     private lateinit var binding: ActivitySupervisorBinding
     private lateinit var repository: TachlitRepository
-    private val supervisorEmail = "supervisor@tachlit.com" // Default supervisor email
-    private val supervisorPassword = "admin123" // Default supervisor password
+    // The password is never stored in the app; the server keeps it in SUPERVISOR_PASSWORD.
+    private val supervisorEmail = "supervisor@tachlit.com"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,9 +34,7 @@ class SupervisorActivity : BaseActivity() {
             override fun handleOnBackPressed() {
                 if (binding.layoutManagement.visibility == View.VISIBLE) {
                     // If management section is visible, go back to login
-                    binding.layoutManagement.visibility = View.GONE
-                    binding.cardLogin.visibility = View.VISIBLE
-                    binding.etSupervisorPassword.text?.clear()
+                    showLoginForm()
                 } else {
                     // Default back behaviour (finish, or move the task back when root).
                     isEnabled = false
@@ -62,33 +57,22 @@ class SupervisorActivity : BaseActivity() {
 
         setupClickListeners()
 
-        // Auto-login flow: if this activity was opened from the splash with an
-        // active supervisor session, log the supervisor in automatically.
+        // Auto-login: opened from the splash with an active supervisor session.
+        // Reuse the login token saved at the last password login. onResume then
+        // loads the statistics; if the token has expired, that call fails and
+        // the password form is shown again.
         if (intent.getBooleanExtra(EXTRA_AUTO_LOGIN, false) &&
             SessionManager.getRole(this) == UserType.SUPERVISOR.name) {
-            binding.etSupervisorPassword.setText(supervisorPassword)
-            handleLogin()
+            SessionManager.getAuthToken(this)?.takeIf { it.isNotBlank() }?.let { token ->
+                repository.setSupervisorToken(token)
+                showManagementSection()
+            }
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     private fun setupClickListeners() {
         binding.btnLogin.setOnClickListener {
             handleLogin()
-        }
-
-        // Hidden feature: touch-and-hold the header for 5 seconds to auto-login with admin123
-        val secretHandler = Handler(Looper.getMainLooper())
-        val secretRunnable = Runnable {
-            binding.etSupervisorPassword.setText("admin123")
-            handleLogin()
-        }
-        binding.cardSupervisorHeader.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> secretHandler.postDelayed(secretRunnable, 5000)
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> secretHandler.removeCallbacks(secretRunnable)
-            }
-            false
         }
 
         binding.btnViewAllUsers.setOnClickListener {
@@ -184,6 +168,12 @@ class SupervisorActivity : BaseActivity() {
         binding.layoutManagement.visibility = View.VISIBLE
     }
 
+    private fun showLoginForm() {
+        binding.layoutManagement.visibility = View.GONE
+        binding.cardLogin.visibility = View.VISIBLE
+        binding.etSupervisorPassword.text?.clear()
+    }
+
     private fun loadStatistics() {
         // Load real statistics from server
         lifecycleScope.launch {
@@ -200,6 +190,10 @@ class SupervisorActivity : BaseActivity() {
                     binding.tvPairingsCount.text = stats.totalPairings.toString()
 
                     println("[DEBUG_LOG] Statistics loaded - Learners: ${stats.learnAskers}, Teachers: ${stats.learnGivers}, Pairings: ${stats.totalPairings}")
+                } else if (result.exceptionOrNull() is SessionExpiredException) {
+                    // Saved login token expired: ask for the password again.
+                    showLoginForm()
+                    binding.etSupervisorPassword.error = getString(R.string.supervisor_session_expired)
                 } else {
                     hideLoading()
                     // Fallback to default values if server request fails

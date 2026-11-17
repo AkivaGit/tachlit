@@ -152,6 +152,7 @@
     <!-- Logout for every role except supervisor deletes the registration -->
     <string name="logout_delete_confirm_message">התנתקות תמחק לצמיתות את ההרשמה שלך מהמערכת. כדי לחזור תצטרך להירשם מחדש. להמשיך?\n\nLogging out permanently deletes your registration. To come back you will need to register again. Continue?</string>
     <string name="logout_failed_title">ההתנתקות נכשלה / Logout failed</string>
+    <string name="supervisor_session_expired">פג תוקף ההתחברות, יש להזין את הסיסמה שוב / Session expired, please enter the password again</string>
     <string name="server_unreachable">לא ניתן להתחבר לשרת. בדקו את החיבור לאינטרנט ונסו שוב בעוד דקה.\n\nCould not reach the server. Check your internet connection and try again in a minute.</string>
 
     <!-- Missing required fields popup (always shown in Hebrew and English) -->

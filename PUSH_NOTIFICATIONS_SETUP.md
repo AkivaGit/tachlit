@@ -91,7 +91,7 @@ and check Render logs for `Firebase Admin SDK initialized successfully`.
 1. Install the app on a physical Android device (emulator without Google
    Play Services can be flaky for FCM).
 2. Grant the notification permission when prompted.
-3. Log in as supervisor (Supervisor screen → password `admin123` by default).
+3. Log in as supervisor (Supervisor screen → the `SUPERVISOR_PASSWORD` value; see `setup.md` section 6).
 4. In the app logs (`adb logcat -s FcmTokenUploader:*`), you should see
    `FCM token registered on server`.
 

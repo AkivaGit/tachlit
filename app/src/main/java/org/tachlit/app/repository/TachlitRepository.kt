@@ -297,6 +297,8 @@ class TachlitRepository(
                 if (response.isSuccessful && response.body()?.success == true) {
                     val stats = response.body()!!.stats!!
                     Result.success(stats)
+                } else if (response.code() == 401) {
+                    Result.failure(SessionExpiredException())
                 } else {
                     Result.failure(Exception("Failed to fetch statistics: ${response.body()?.message ?: response.message()}"))
                 }
@@ -308,3 +310,6 @@ class TachlitRepository(
         }
     }
 }
+
+/** The server rejected the saved login token (expired, or the account no longer exists). */
+class SessionExpiredException : Exception("Session expired")

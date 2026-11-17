@@ -82,6 +82,15 @@ const validateRegistration = [
       'יש להזין מספר טלפון נייד תקין, ספרות בלבד (לדוגמה 0501234567)'
     )),
 
+  // Staff (SUPERVISOR) accounts can't be created through public registration;
+  // otherwise anyone could give themselves access to every user's details.
+  body('userType')
+    .isIn(['LEARN_ASKER', 'LEARN_GIVER', 'OFFICE_VOLUNTEER', 'FOOD_VOLUNTEER', 'GROUP_COORDINATOR'])
+    .withMessage(bi(
+      'Invalid user type',
+      'סוג משתמש לא תקין'
+    )),
+
   handleValidationErrors
 ];
 

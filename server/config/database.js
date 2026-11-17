@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { Pool } = require('pg');
 
 // Validate environment variables
@@ -108,6 +109,49 @@ const query = async (text, params) => {
     console.error('Database query error:', error);
     throw error;
   }
+};
+
+// The staff (supervisor) account. The Android app logs in with this email.
+const SUPERVISOR_EMAIL = 'supervisor@tachlit.com';
+// Password the account had while it was hard-coded in this public repo.
+const OLD_PUBLIC_SUPERVISOR_PASSWORD = 'admin123';
+
+/**
+ * Create the supervisor account, or set its password, from the
+ * SUPERVISOR_PASSWORD environment variable (Render → web service → Environment).
+ * The password is never stored in this repo. It is applied on every start, so
+ * changing the variable and redeploying changes the password.
+ *
+ * Without the variable the password is left as it is, except that the old
+ * public default is revoked, so it can never be used to log in.
+ * The password is passed as a query parameter: `query` logs only the SQL text.
+ */
+const setupSupervisor = async () => {
+  const password = process.env.SUPERVISOR_PASSWORD;
+
+  if (password) {
+    await query(`
+      INSERT INTO users (email, password_hash, name, family_name, phone, city, user_type)
+      VALUES ($1, $2, 'System', 'Administrator', '+972-50-1234567', 'Jerusalem', 'SUPERVISOR')
+      ON CONFLICT (email) DO UPDATE SET
+        password_hash = EXCLUDED.password_hash,
+        user_type = 'SUPERVISOR',
+        is_active = true
+    `, [SUPERVISOR_EMAIL, password]);
+    console.log('✓ Supervisor password set from SUPERVISOR_PASSWORD');
+    return;
+  }
+
+  const revoked = await query(
+    'UPDATE users SET password_hash = $3 WHERE email = $1 AND password_hash = $2',
+    [SUPERVISOR_EMAIL, OLD_PUBLIC_SUPERVISOR_PASSWORD, crypto.randomBytes(32).toString('hex')]
+  );
+  console.warn(
+    '⚠️  SUPERVISOR_PASSWORD is not set. ' +
+    (revoked.rowCount
+      ? 'The old public supervisor password was revoked; supervisor login is disabled until you set SUPERVISOR_PASSWORD and redeploy.'
+      : 'The supervisor password was left unchanged.')
+  );
 };
 
 // Transaction helper function
@@ -277,21 +321,7 @@ const initializeDatabase = async () => {
     await query('CREATE INDEX IF NOT EXISTS idx_pairings_learn_asker_id ON pairings(learn_asker_id)');
     await query('CREATE INDEX IF NOT EXISTS idx_pairings_learn_giver_id ON pairings(learn_giver_id)');
 
-    // Insert default supervisor user (password: admin123)
-    await query(`
-      INSERT INTO users (email, password_hash, name, family_name, phone, city, user_type)
-      VALUES (
-        'supervisor@tachlit.com',
-        'admin123',
-        'System',
-        'Administrator',
-        '+972-50-1234567',
-        'Jerusalem',
-        'SUPERVISOR'
-      ) ON CONFLICT (email) DO UPDATE SET 
-        password_hash = EXCLUDED.password_hash,
-        family_name = EXCLUDED.family_name
-    `);
+    await setupSupervisor();
 
     console.log('Database tables initialized successfully');
   } catch (error) {
