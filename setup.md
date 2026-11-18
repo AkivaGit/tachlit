@@ -320,3 +320,19 @@ For a person or an AI assistant picking this up later:
 
 If `setup.local.md` is missing (new computer, fresh clone), the live values can
 always be read back from the Render dashboard.
+
+---
+
+## 11. Web app (PWA)
+
+The web version of the app (iPhone + Android, installed from a link) lives in
+`web/`. Full plan, status, file map and open steps: **`PWA_PLAN.md`**.
+
+| Item | Value |
+|---|---|
+| Server | Same `https://tachlit.onrender.com` (CORS already allows the web app) |
+| Hosting | Firebase Hosting, project `tachlit-2efd4`, site in `web/.firebaserc` (default `tachlit-chesed` → `https://tachlit-chesed.web.app`) |
+| Settings | `web/.env` – public values only: server URL, Firebase web config, web-push public key |
+| Publish | `cd web && npm install && npm run deploy` (needs `firebase login` once) |
+| Tests | `npm test` (unit/component), `npm run test:e2e` (end-to-end against `web/fake-server`, never the live server) |
+| Push | Same FCM as Android; the web app registers tokens with `platform: "web"`. Off until `web/.env` has the Firebase values. iPhone: only after "Add to Home Screen" (iOS 16.4+). |

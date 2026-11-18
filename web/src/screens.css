@@ -1,0 +1,176 @@
+/* Screen layouts, copied from the Android layouts (dp = px). */
+
+/* ---------- Splash (activity_splash.xml) ---------- */
+.splash {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
+}
+.splash__logo { width: 100%; height: 100%; object-fit: contain; }
+
+/* ---------- Main (activity_main.xml) ---------- */
+.main {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  background: var(--background);
+}
+.main__logo-card { margin-top: 30px; flex: none; }
+.main__logo { display: block; width: 280px; height: 180px; object-fit: contain; }
+.main__title { margin-top: 5px; color: var(--main); font-size: 24px; font-weight: 700; }
+.main__subtitle { width: 100%; text-align: center; color: var(--secondary); font-size: 16px; }
+.main__choose { margin-top: 48px; color: var(--text-primary); font-size: 18px; font-weight: 700; }
+.main__list {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  margin-top: 24px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.main__card { margin-bottom: 16px; padding: 20px; }
+.main__card-title { color: var(--main); font-size: 18px; font-weight: 700; }
+.main__card-description { margin-top: 8px; color: var(--secondary); font-size: 14px; }
+
+/* ---------- Registration forms (activity_learn_asker.xml, …) ---------- */
+.reg { padding: 24px; }
+.reg__header { margin-bottom: 24px; padding: 24px; text-align: center; }
+.reg__title { margin: 0; font-size: 24px; font-weight: 700; line-height: var(--line); }
+.reg__subtitle { margin-top: 8px; font-size: 16px; }
+.reg__form { margin-bottom: 24px; padding: 24px; overflow: visible; display: flex; flex-direction: column; }  /* no margin collapsing */
+.reg__section { margin: 0 0 16px; font-size: 18px; font-weight: 700; line-height: var(--line); }
+.reg__spinner-label { display: block; margin-bottom: 8px; color: var(--text-primary); font-size: 16px; }
+.reg__buttons { display: flex; gap: 16px; }
+.reg__buttons--inside { margin-top: 16px; }
+.reg__button { flex: 1; }
+
+/* ---------- Personal area (activity_role_home.xml) ---------- */
+.home {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background: #FFFFFF;
+  color: rgba(0, 0, 0, 0.54);           /* default TextView colour (textColorSecondary) */
+  text-align: center;
+}
+.home__greeting { margin-top: 24px; font-size: 22px; font-weight: 700; }
+.home__subtitle { margin-top: 12px; font-size: 16px; white-space: pre-line; }
+.home__role { margin-top: 24px; font-size: 16px; }
+.home__card { margin-top: 32px; padding: 16px; text-align: start; }
+.home__card-title { font-size: 18px; font-weight: 700; }
+.home__card-body { margin-top: 8px; font-size: 14px; }
+.home__spacer { flex: 1; }
+.home__logout { align-self: center; margin-bottom: 30px; }
+
+/* ---------- Donations (activity_donations.xml) ---------- */
+.donations { padding: 32px 24px 24px; display: flex; flex-direction: column; }  /* card margins add up, like Android */
+.donation-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px;
+  text-align: center;
+}
+.donation-card--first { margin: 5px; }
+.donation-card--second { margin: 15px 5px 5px; }
+/* 48sp emoji line; drawn with the default TextView colour's 54% alpha (measured 52.6 × 48.4 dp). */
+.donation-card__heart { height: 65.4px; padding-top: 9.5px; opacity: 0.54; }
+.donation-card__heart img { display: block; width: 52.6px; height: 48.4px; }
+.donation-card__title { margin-top: 16px; color: var(--main); font-size: 26px; font-weight: 700; }
+.donation-card__divider { width: 60px; height: 3px; margin-top: 12px; background: var(--secondary); }
+.donation-card__text { margin-top: 20px; color: var(--text-primary); font-size: 18px; }
+.donation-card__link {
+  margin-top: 30px;                     /* 24dp margin + 6dp MaterialButton inset */
+  border-radius: 8px;
+  text-decoration: none;
+  text-align: center;
+}
+
+/* ---------- Supervisor (activity_supervisor.xml) ---------- */
+.sup { padding: 24px; }
+.sup__header { margin-bottom: 24px; padding: 24px; text-align: center; }
+.sup__title { margin: 0; color: var(--text-on-pink, #880E4F); font-size: 24px; font-weight: 700; line-height: var(--line); }
+.sup__subtitle { margin-top: 8px; color: #C2185B; font-size: 16px; }
+.sup__card { margin-bottom: 24px; padding: 24px; overflow: visible; }
+.sup__card-title { margin: 0 0 16px; color: var(--secondary); font-size: 18px; font-weight: 700; text-align: center; line-height: var(--line); }
+/* Flex column: Android margins add up (no CSS margin collapsing). */
+.sup__management { display: flex; flex-direction: column; }
+.sup__stats { margin-bottom: 16px; padding: 24px; }
+.sup__button { margin: 6px 0 18px; }
+.sup__filter { margin-top: 16px; padding: 24px; overflow: visible; }
+.sup__filter-title { margin: 0 0 12px; color: var(--secondary); font-size: 16px; font-weight: 700; line-height: var(--line); }
+.sup__logout-row { display: flex; justify-content: center; margin-top: 24px; }
+
+/* Statistics row (both supervisor screens) */
+.stats { display: flex; }
+.stats__cell { flex: 1; display: flex; flex-direction: column; align-items: center; }
+.stats__value { font-size: 24px; font-weight: 700; }
+.stats__label { color: var(--text-secondary); font-size: 14px; }
+
+/* ---------- Management (activity_supervisor_management.xml) ---------- */
+.mgmt { padding: 16px; }
+.mgmt__title { margin: 0 0 16px; color: var(--main); font-size: 22px; font-weight: 700; text-align: center; line-height: var(--line); }
+.mgmt__stats { margin-bottom: 16px; padding: 16px; }
+.mgmt__stats-title { margin: 0 0 12px; color: var(--main); font-size: 18px; font-weight: 700; text-align: center; line-height: var(--line); }
+.mgmt__buttons { display: flex; gap: 16px; margin-bottom: 16px; }
+.mgmt__button { flex: 1; }
+.mgmt__section { margin-bottom: 16px; padding: 16px; }
+.mgmt__section--last { margin-bottom: 0; }
+.mgmt__section-title { margin: 0 0 12px; font-size: 18px; font-weight: 700; text-align: center; line-height: var(--line); }
+.mgmt__list { height: 600px; overflow-y: auto; display: flex; flex-direction: column; }   /* RecyclerView 600dp; item margins add up */
+
+/* List items (item_user.xml, item_learner.xml, item_teacher.xml) */
+.item { margin: 8px; padding: 12px; }
+.item__row { display: flex; align-items: center; margin-bottom: 8px; }
+.item__row:last-child { margin-bottom: 0; }
+.item__name { flex: 1; font-size: 16px; font-weight: 700; }
+.item__grow { flex: 1; }
+.item__badge { display: inline-block; color: #FFFFFF; padding: 4px 8px; background: transparent; }
+.item__badge--small { padding: 2px 6px; }
+.item__badge--small.latin { padding: calc(2px + 0.13em) 6px calc(2px + 0.03em); }  /* + includeFontPadding */
+.item__badge-row { display: flex; }
+.item__line1 { margin-bottom: 4px; color: var(--text-primary); font-size: 14px; }
+.item__line2 { color: var(--text-secondary); font-size: 12px; }
+.item__line2--spaced { margin-bottom: 4px; }
+
+/* ---------- Send notification (activity_supervisor_send_notification.xml) ---------- */
+/* All measurements from reference 98b (AppCompat EditText: underline 7dp above its bottom edge). */
+.send {
+  min-height: 100dvh;
+  padding: 16px;
+  background: #FFFFFF;
+  color: rgba(0, 0, 0, 0.54);
+  display: flex;                        /* Android margins add up (no collapsing) */
+  flex-direction: column;
+}
+.send__title { margin-bottom: 16px; font-size: 20px; font-weight: 700; direction: ltr; text-align: left; line-height: 1.19; padding-block: 2.6px 0.6px; }
+.send__input {
+  display: block;
+  width: 100%;
+  margin-bottom: 7px;
+  padding: 12.1px 4px 3px;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.54);
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1.19;
+  color: rgba(0, 0, 0, 0.87);
+  text-align: start;
+  unicode-bidi: plaintext;
+  resize: none;
+}
+.send__input:focus { border-bottom: 2px solid var(--control-activated); padding-bottom: 2px; }
+.send__input::placeholder { color: rgba(0, 0, 0, 0.6); }
+.send__input--multiline { margin-top: 8px; line-height: 20.8px; }
+.send__roles-title { margin-top: 16px; font-size: 14px; font-weight: 700; direction: ltr; text-align: left; line-height: 1.19; padding-block: 3.2px 0.4px; }
+.send__roles { margin-top: 4px; }
+.send__button-wrap { position: relative; margin-top: 24px; display: flow-root; }
+.send__progress { position: absolute; top: 50%; left: 50%; width: 48px; height: 48px; margin: -24px 0 0 -24px; }

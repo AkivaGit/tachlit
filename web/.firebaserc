@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "tachlit-2efd4"
+  },
+  "targets": {
+    "tachlit-2efd4": {
+      "hosting": {
+        "app": ["tachlit-chesed"]
+      }
+    }
+  }
+}

@@ -1,0 +1,479 @@
+/* Android 14's own Hebrew font (Regular + Bold only, like Android: weight 500
+   falls back to Regular). See src/assets/fonts/README.md. */
+@font-face {
+  font-family: 'Noto Sans Hebrew Android';
+  src: url('./assets/fonts/NotoSansHebrew-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Sans Hebrew Android';
+  src: url('./assets/fonts/NotoSansHebrew-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
+/*
+ * Tachlit PWA look: copies the Android app (Material Components 1.x on a
+ * Hebrew phone). 1 Android dp = 1 CSS px. Values marked "measured" come from
+ * the reference screenshots in web/reference/android (see PWA_PLAN.md §9).
+ */
+
+:root {
+  --main: #449799;
+  --secondary: #B94B55;
+  --background: #F5F5F5;
+  --card: #FFF8F6;
+  --surface: #FFFFFF;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --success: #4CAF50;
+  --warning: #FF9800;
+  --primary: #6200EE;          /* colorPrimary: dialog buttons, default accents */
+  --status-bar: #3700B3;
+  --control-activated: #03DAC5; /* colorSecondary: progress, checkboxes */
+  --field-bg: rgba(0, 0, 0, 0.12);     /* measured #E0E0E0 on white */
+  --field-line: rgba(0, 0, 0, 0.42);   /* measured #828282 on #E0E0E0 */
+  --field-label: rgba(0, 0, 0, 0.6);   /* measured #5A5A5A on #E0E0E0 */
+  --error: #F44336;
+
+  --elev-1: 0 1px 1px rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.2);
+  --elev-2: 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px rgba(0, 0, 0, 0.2);
+  --elev-4: 0 4px 5px rgba(0, 0, 0, 0.14), 0 1px 10px rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --elev-6: 0 6px 10px rgba(0, 0, 0, 0.14), 0 1px 18px rgba(0, 0, 0, 0.12), 0 3px 5px -1px rgba(0, 0, 0, 0.2);
+  --elev-8: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
+  --elev-24: 0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.2);
+
+  /* Android: Roboto, with Noto Sans Hebrew for Hebrew letters. */
+  --font: 'Roboto', 'Noto Sans Hebrew Android', system-ui, sans-serif;
+  /* Android grows a line only when it holds Hebrew (fallback font): Hebrew
+     lines are 1.36 × the size, Latin-only lines 1.17 (Roboto). CSS
+     line-height: normal does exactly the same (measured, PWA_PLAN.md §9). */
+  --line: 1.3618;           /* Noto Sans Hebrew (2189 + 600) / 2048, as on Android */
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: var(--line);
+  color: var(--text-primary);
+  background: #FFFFFF;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+button, input, textarea, select { font: inherit; color: inherit; }
+
+/*
+ * Text without Hebrew is laid out with Roboto: 1.19 per line (1.1719 rounded up
+ * to device pixels), plus Android's includeFontPadding (Roboto's font bounds)
+ * once at the top and bottom of the text. `.latin` = a whole Latin text view,
+ * `.latin-line` = one Latin line inside a longer text (dialog paragraphs).
+ */
+.latin { line-height: 1.19; padding-block: 0.13em 0.03em; }
+.latin-line { line-height: 1.19; }
+
+/* A full-height screen with its own background, like an Activity. */
+.screen {
+  min-height: 100%;
+  background: var(--background);
+}
+
+/* ---------------- Card (CardView / MaterialCardView) ---------------- */
+.card {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+}
+.card--clickable { cursor: pointer; user-select: none; }
+.card--clickable:focus-visible { outline: 2px solid var(--main); outline-offset: 2px; }
+
+/* ---------------- Ripple ---------------- */
+.ripple { position: relative; overflow: hidden; }
+.ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ripple-color, rgba(0, 0, 0, 0.12));
+  opacity: 0;
+  transition: opacity 150ms;
+  pointer-events: none;
+}
+.ripple:active::after { opacity: var(--ripple-opacity, 0.24); }
+
+/* ---------------- Button (MaterialButton) ---------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  margin: 6px 0;                 /* insetTop / insetBottom */
+  padding: 4px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: var(--line);
+  letter-spacing: 0.0892857em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  background: var(--primary);
+  box-shadow: var(--elev-2);
+  cursor: pointer;
+  transition: box-shadow 150ms;
+  --ripple-color: rgba(255, 255, 255, 0.24);
+  --ripple-opacity: 1;
+}
+.btn:active { box-shadow: var(--elev-8); }
+.btn:disabled { cursor: default; background: rgba(0, 0, 0, 0.12) !important; color: rgba(0, 0, 0, 0.38) !important; box-shadow: none; }
+.btn--bold { font-weight: 700; }
+.btn--block { display: flex; width: 100%; }
+.btn--outlined {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: none;
+  --ripple-color: rgba(98, 0, 238, 0.12);
+}
+.btn--outlined:active { box-shadow: none; }
+.btn__icon { width: 18px; height: 18px; flex: none; }
+
+/* ---------------- TextField (filled TextInputLayout) ---------------- */
+.tf {
+  position: relative;
+  --tf-accent: var(--primary);
+  --tf-stroke: var(--primary);
+}
+.tf__box {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  min-height: 55.65px;                 /* measured: 54.5 grey + 1.15 underline */
+  background: var(--field-bg);
+  border-radius: 4px 4px 0 0;
+  box-shadow: inset 0 -1px 0 var(--field-line);
+  cursor: text;
+}
+.tf--focused .tf__box { box-shadow: inset 0 -2px 0 var(--tf-stroke); }
+.tf__label {
+  position: absolute;
+  inset-inline-start: 16px;
+  inset-inline-end: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  line-height: normal;
+  color: var(--field-label);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  transition: top 150ms, font-size 150ms, color 150ms, transform 150ms;
+}
+.tf--multiline .tf__label { top: auto; bottom: 16px; transform: none; }
+.tf--floating .tf__label { top: 8px; bottom: auto; transform: none; font-size: 12px; }
+.tf--focused .tf__label { color: var(--tf-accent); }
+.tf__input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 25px 16px 11.9px;          /* 25 + 18.75 line + 11.9 = 55.65 */
+  font-size: 16px;
+  line-height: normal;
+  color: rgba(0, 0, 0, 0.87);
+  caret-color: var(--primary);
+  resize: none;
+}
+input.tf__input, select.tf__input { height: 55.65px; }
+textarea.tf__input { overflow: hidden; }
+.tf__end {
+  display: flex;
+  align-items: center;
+  padding-inline-end: 12px;
+  gap: 4px;
+}
+.tf__end { position: relative; }
+.tf__error-icon { width: 24px; height: 24px; color: var(--error); flex: none; }
+.tf__error-icon--over { position: absolute; inset-inline-end: 12px; pointer-events: none; }
+.tf__toggle {
+  border: none;
+  background: transparent;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  color: rgba(0, 0, 0, 0.54);
+  cursor: pointer;
+}
+/* TextView.setError popup: black bubble with a red top edge under the field. */
+.tf__bubble {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 4px);
+  inset-inline-end: 0;
+  max-width: 80%;
+  padding: 8px 12px;
+  background: #1A1A1A;
+  border-top: 3px solid var(--error);
+  color: #FFFFFF;
+  font-size: 14px;
+  text-align: start;
+  box-shadow: var(--elev-4);
+}
+.tf__bubble::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  inset-inline-end: 14px;
+  border: 6px solid transparent;
+  border-bottom-color: var(--error);
+}
+
+/* Spinner (AppCompat Spinner, no box) */
+.spinner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 24px;                     /* measured: label + 8 + 24 + 16 */
+}
+.spinner__select {
+  width: 100%;
+  appearance: none;
+  border: none;
+  background: transparent;
+  height: 24px;
+  padding: 0 16px 0 48px;
+  font-size: 16px;
+  line-height: 24px;
+  color: rgba(0, 0, 0, 0.87);
+  outline: none;
+}
+.spinner__arrow, .tf__arrow {
+  position: absolute;
+  inset-inline-end: auto;
+  left: 12px;
+  width: 24px;
+  height: 24px;
+  color: rgba(0, 0, 0, 0.54);
+  pointer-events: none;
+}
+.tf__select {
+  appearance: none;
+  padding-left: 48px;
+  cursor: pointer;
+}
+.tf__select:invalid { color: transparent; }
+.tf__arrow { top: 16px; }
+
+/* ---------------- Checkbox (MaterialCheckBox) ---------------- */
+.checkbox {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  font-size: 16px;
+  color: #000000;                       /* measured */
+  cursor: pointer;
+}
+.checkbox__input {
+  appearance: none;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 7px 3px;
+  border: 2px solid rgba(0, 0, 0, 0.6);  /* measured #666 */
+  border-radius: 2px;
+  display: grid;
+  place-content: center;
+  cursor: pointer;
+}
+.checkbox__input:checked { background: var(--control-activated); border-color: var(--control-activated); }
+.checkbox__input:checked::after {
+  content: '';
+  width: 10px;
+  height: 5px;
+  border: 2px solid #FFFFFF;
+  border-top: none;
+  border-right: none;
+  transform: translateY(-1px) rotate(-45deg);
+}
+.checkbox__label { flex: 1; text-align: left; direction: ltr; unicode-bidi: plaintext; }
+
+/* ---------------- Dialog (AlertDialog) ---------------- */
+.dialog-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);        /* measured */
+}
+.dialog {
+  width: calc(100% - 53px);              /* measured 358dp on a 411dp screen */
+  max-width: 560px;
+  max-height: calc(100% - 48px);
+  overflow: auto;
+  background: #FFFFFF;
+  border-radius: 2px;
+  box-shadow: var(--elev-24);
+}
+.dialog__title {
+  margin: 0;
+  padding: 18px 24px 0;                  /* abc_dialog_padding_top_material */
+  font-size: 20px;
+  font-weight: 500;
+  line-height: var(--line);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.dialog__title--shrunk {
+  font-size: 18px;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.dialog__message {
+  padding: 8px 24px 0;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+.dialog__line { margin: 0; min-height: 1.19em; unicode-bidi: plaintext; text-align: start; }
+.dialog__items { padding: 8px 0 0; }
+.dialog__item {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 24px;
+  border: none;
+  background: transparent;
+  text-align: start;
+  font-size: 16px;
+  cursor: pointer;
+}
+.dialog__buttons {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 8px 10.5px 24px;        /* measured against the Android dialogs */
+}
+.dialog__button {
+  min-width: 64px;
+  min-height: 36px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.0892857em;
+  text-transform: uppercase;
+  cursor: pointer;
+  --ripple-color: rgba(98, 0, 238, 0.12);
+  --ripple-opacity: 1;
+}
+
+/* ---------------- Toast (Android 12+) ---------------- */
+.toast {
+  position: fixed;
+  z-index: 200;
+  left: 50%;
+  bottom: calc(64px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 48px);
+  padding: 8px 16px 8px 12px;
+  background: #FFFFFF;
+  border-radius: 24px;
+  box-shadow: var(--elev-6);
+  font-size: 14px;
+  color: var(--text-primary);
+  pointer-events: none;
+  animation: toast-in 200ms ease-out;
+}
+.toast__icon { width: 24px; height: 24px; border-radius: 50%; flex: none; object-fit: contain; }
+.toast__text { unicode-bidi: plaintext; }
+@keyframes toast-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------------- Loading overlay (overlay_loading.xml) ---------------- */
+.loading {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);         /* #80000000 */
+}
+.loading__box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px;
+  border-radius: 16px;
+  background: rgba(51, 51, 51, 0.8);      /* #CC333333 */
+}
+.loading__spinner { width: 64px; height: 64px; animation: spin 1.4s linear infinite; }
+.loading__spinner circle {
+  stroke: var(--control-activated);
+  stroke-linecap: round;
+  stroke-dasharray: 80 200;
+  animation: dash 1.4s ease-in-out infinite;
+}
+.loading__text { margin-top: 16px; color: #FFFFFF; font-size: 18px; font-weight: 700; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes dash {
+  0% { stroke-dasharray: 1 200; stroke-dashoffset: 0; }
+  50% { stroke-dasharray: 90 200; stroke-dashoffset: -35; }
+  100% { stroke-dasharray: 90 200; stroke-dashoffset: -125; }
+}
+
+/* ---------------- Web-only extras (PWA_PLAN.md D3, D4) ---------------- */
+#root { padding-bottom: env(safe-area-inset-bottom); }
+.back-button {
+  position: fixed;
+  z-index: 50;
+  top: calc(env(safe-area-inset-top) + 8px);
+  inset-inline-start: 8px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text-primary);
+  box-shadow: var(--elev-2);
+  cursor: pointer;
+}
+.install-guide {
+  position: fixed;
+  z-index: 90;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20px 24px calc(12px + env(safe-area-inset-bottom));
+  background: #FFFFFF;
+  border-radius: 16px 16px 0 0;
+  box-shadow: var(--elev-24);
+}
+.install-guide__title { margin: 0 0 8px; font-size: 18px; font-weight: 700; color: var(--main); }
+.install-guide__text { margin: 0 0 8px; font-size: 15px; color: var(--text-primary); }
+.install-guide__close { display: block; margin-inline-start: auto; }
